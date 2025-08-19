@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% load bootstrap5 %}
+
+{% block title %}
+User Profile {{this_user.first_name}}
+{% endblock %}
+
+{% block content %}
+<p>Welcome back, {{ user.username }}!</p>
+<p>
+<b>First Name:</b> {{this_user.first_name}}
+<p>
+</p>
+Last Name: {{this_user.last_name}}
+</p>
+<p>
+Email: {{this_user.email}}
+</p>
+<p>
+Has Access to System: {% if this_user.access_to_system %}Yes{% else %}No{% endif %}
+</p>
+<p>
+Active: {% if this_user.is_active %}Yes{% else %}No{% endif %} 
+</p>
+<p>
+Administrative Account: {% if this_user.admin_account %}Yes{% else %}No{% endif %} 
+</p>
+<a href="/users/update_user/{{this_user.id}}" class="btn btn-primary">Edit</a>
+<a href="/users/list_users" class="btn btn-secondary">Back</a>
+{% endblock %}

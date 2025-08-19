@@ -1,0 +1,27 @@
+
+{% extends 'base.html' %}
+{% load bootstrap5 %}
+
+{% block title %}
+    Log Into the Share Care System
+{% endblock %}
+
+{% block content %}
+{% if form.non_field_errors %}
+<div class="alert alert-danger" role="alert">
+    {% for error in form.non_field_errors %}
+        {{ error }}
+    {% endfor %}
+</div>
+{% endif %}
+    <form method="post">
+        {% csrf_token %}
+
+        {% bootstrap_form form layout=inline %}
+
+        {% bootstrap_button button_type="submit" content="Submit" %}
+        {% bootstrap_button button_type="reset" content="Cancel" %}
+    </form>
+
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load bootstrap5 %}
+{% load static %}
+
+{% block title %}
+    Details for {{eq}}
+{% endblock %}
+
+{% block content %}
+Name: {{eq.eq_name}}</br>
+Type: {{eq.eq_type}}</br>
+Value: ${{eq.eq_value}}</br>
+<p>
+    <h3>Status History</h3>
+    {% if status_updates %}
+        <ul>
+            {% for status_update in status_updates %}
+                <li>
+                    <strong>Date:</strong> {{ status_update.status_date }} -
+                    <strong>Status:</strong> {{ status_update.get_status_display }}
+                    {% if status_update.client %}
+                        <strong>{{status_update.client}}</strong>
+                        {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <a href="{% url 'list_equipment' %}" class="btn btn-info" role="button">List</a>  <a href="/equipment/create_eq_status/{{ eq.pk }}" class="btn btn-info" role="button">Add History</a>
+</p>
+
+{% endblock %}

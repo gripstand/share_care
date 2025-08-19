@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load bootstrap5 %}
+
+{% block title %}
+Listing all users in system
+{% endblock %}
+
+{% block content %}
+
+
+<script type="text/javascript" class="init">
+        $(document).ready(function() {
+            $('#myTable').DataTable();
+        });
+</script>
+
+<table id="myTable" class="display">    
+    <thead>
+        <tr>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Email</th>
+            <th colspan="2" scope="col">Action</th>
+        </tr>
+    </thead>
+{% for CustomUser in users %}
+<tr>
+<td scope="'row"><a href="#">{{CustomUser.first_name}}</a></td>
+<td scope="'row">{{CustomUser.last_name}}</td>
+<td scope="'row">{{CustomUser.email}}</td>
+<td scope="'row"><a href='/users/update_user/{{CustomUser.id}}'> Edit</a></td>
+<td scope="'row"><a href='/users/user_profile/{{CustomUser.id}}'>View</a></td>
+</tr> 
+
+{% empty %}
+<tr><td colspan="5">No Users Found</td></tr>
+{% endfor %}
+</table>
+
+{% endblock %}

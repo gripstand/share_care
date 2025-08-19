@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load bootstrap5 %}
+
+{% block title %}
+Listing all Clients
+{% endblock %}
+
+{% block content %}
+
+
+<script type="text/javascript" class="init">
+        $(document).ready(function() {
+            $('#myTable').DataTable();
+        });
+</script>
+
+<table id="myTable" class="display">  
+    <thead>
+    <tr>
+        <th>Last Name</th>
+        <th>First Name</th>
+        <th>Email</th>
+        <th>Fave Color</th>
+        <th colspan="2">Action</th>
+    </tr>
+    </thead>
+{% for client in clients %}
+<tr>
+    <td>{{client.last_name}}</td>
+    <td>{{client.first_name}}</td>
+    <td>{{client.email}}</td>
+    <td>{{client.city}}</td>
+    <td><a href='/client/client_detail/{{client.id}}'>View</a></td>
+    <td><a href='/client/update_client/{{client.id}}'>Edit</a></td>    
+</tr>
+{% endfor %}
+</table>
+
+<a href='/client/create_client/'>Add New</a>
+{% endblock %}

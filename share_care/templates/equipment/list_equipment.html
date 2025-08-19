@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load bootstrap5 %}
+
+{% block title %}
+Listing Equipment
+{% endblock %}
+
+{% block content %}
+
+
+<script type="text/javascript" class="init">
+        $(document).ready(function() {
+            $('#myTable').DataTable();
+        });
+</script>
+
+<table id="myTable" class="display">  
+    <thead>
+    <tr>
+        <th>Equipment Name</th>
+        <th>Equipment Type</th>
+        <th>Equipment Value</th>
+        <th colspan="2">Action</th>
+    </tr>
+    </thead>
+{% for eq in equipment %}
+<tr>
+    <td>{{eq.eq_name}}</td>
+    <td>{{eq.eq_type}}</td>
+    <td>{{eq.eq_value}}</td>
+    <td><a href='/equipment/detail_equipment/{{eq.id}}'>View</a></td>
+    <td><a href='/equipment/update_equipment/{{eq.id}}'>Edit</a></td>    
+</tr>
+{% endfor %}
+</table>
+
+<a href="{% url 'add_equipment' %}" class="btn btn-info" role="button">Add New Equipment</a>
+{% endblock %}

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django import forms
-from .models import Client, AddContacts, Goal, GoalUpdate, Actions
+from .models import Client, AddContacts, Goal, GoalUpdate, Actions, Eval
 from django.forms import inlineformset_factory
 from django.forms import ModelForm
 from phonenumber_field.formfields import PhoneNumberField
@@ -108,5 +108,15 @@ class ActionForm(forms.ModelForm):
                 'action_date':DatePickerInput(),
                 'client': forms.HiddenInput(),
                 'action_outcome': forms.RadioSelect,
+        }
+        fields='__all__'
+
+class EvalForm(forms.ModelForm):
+    class Meta:
+        model=Eval
+        widgets= {
+                'eval_date':DatePickerInput(),
+                'client': forms.HiddenInput(),
+                'eval_core_challenge': forms.RadioSelect
         }
         fields='__all__'

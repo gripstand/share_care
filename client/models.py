@@ -56,6 +56,14 @@ class FundingSources(models.Model):
     fund_name=models.CharField(max_length=150, verbose_name="Fund Name")
     fund_active_status=models.BooleanField(default=True, verbose_name="Fund is active")
 
+    def __str__(self):
+        return self.fund_name
+
+class GeneralDisabilityList(models.Model):
+    disability_name=models.CharField(max_length=150, verbose_name="Disability Name")
+    
+    def __str__(self):
+        return self.disability_name
 
 # ------------------ Models for Client Profile
 
@@ -67,8 +75,10 @@ class Client(MetaDataModel):
     dob=models.DateField(verbose_name="Client Date of Birth")
     vet_status=models.BooleanField(default=False, verbose_name="Client is a veteran")
     active_status=models.BooleanField(default=True, verbose_name="Client is active")
-    street_address=models.CharField(max_length=150)
     referred_by=models.ForeignKey(ReferralEntities, on_delete=models.CASCADE, blank=True, null=True, related_name='referred_by', verbose_name="Client referred by")
+    gen_disability=models.ForeignKey(GeneralDisabilityList, on_delete=models.CASCADE, blank=True, null=True, related_name='gen_disability', verbose_name="General Disability")
+    disability_notes=models.TextField(blank=True, null=True, verbose_name="Disability Notes")
+    street_address=models.CharField(max_length=150)
     street_address_2=models.CharField(max_length=150, blank=True)
     city=models.CharField(max_length=150)
     state=USStateField()

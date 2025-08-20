@@ -59,4 +59,5 @@ email: {{client.email}}</br>
     <a href="{% url 'list_clients' %}" class="btn btn-info" role="button">List</a>  <a href="/client/update_client/{{client.id}}" class="btn btn-info" role="button">Update Client</a> 
     <a href="/client/add_goal/{{client.id}}" class="btn btn-info" role="button">Add Goal</a>
     <a href="/client/add_action/{{client.id}}" class="btn btn-info" role="button">Add Action</a>
+    <a href="/client/add_eval/{{client.id}}" class="btn btn-info" role="button">Add Evaluation</a>
 {% endblock %}

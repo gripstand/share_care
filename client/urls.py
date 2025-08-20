@@ -14,6 +14,7 @@ urlpatterns=[
     path('add_goal_update/<int:goal_id>/', views.CreateGoalUpdate.as_view(), name='add_goal_update'),
     path('add_action/<int:client_id>/', views.CreateAction.as_view(), name='add_action'),
     path('list_actions/', views.ListActions.as_view(), name='list_actions'),
+    path('add_eval/<int:client_id>/', views.CreateEval.as_view(), name='add_eval'),
 
 
 ]

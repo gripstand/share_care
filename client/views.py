@@ -3,9 +3,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import OuterRef, Subquery
-from .models import Client, AddContacts, Goal, GoalUpdate, Actions
+from .models import Client, AddContacts, Goal, GoalUpdate, Actions, Eval
 from equipment.models import Equipment, EquipmentStatus
-from .forms import ClientForm, GoalForm, GoalUpdateForm, PhoneNumberFormSet, PhoneNumberFormSetUpdate, ActionForm
+from .forms import ClientForm, GoalForm, GoalUpdateForm, PhoneNumberFormSet, PhoneNumberFormSetUpdate, ActionForm, EvalForm
 from django.forms import inlineformset_factory
 from django.views.generic import CreateView,DetailView, ListView, UpdateView, DeleteView
 from django.urls import reverse_lazy
@@ -226,3 +226,30 @@ class ActionDetails(DetailView):
     model=Actions
     context_object_name='action'
     template_name='clients/action_details.html'
+
+#---------------------- Evaluations --------------------------#
+
+class CreateEval(CreateView):
+    model = Eval
+    form_class = EvalForm
+    template_name = 'clients/evaluation.html'
+    success_url = reverse_lazy('list_clients')
+
+    def get_initial(self):
+        # Access the URL parameter 'client_id' from self.kwargs
+        client_id = self.kwargs.get('client_id')
+        
+        # Look up the actual Client object from the database
+        client_instance = get_object_or_404(Client, pk=client_id)
+        
+        # This is where you set initial values for the form's fields
+        return {'client': client_instance}
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get the context
+        context = super().get_context_data(**kwargs)
+        
+        # Add the client instance to the context for template display
+        client_id = self.kwargs.get('client_id')
+        context['client'] = get_object_or_404(Client, pk=client_id)
+        return context

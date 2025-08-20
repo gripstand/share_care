@@ -3,9 +3,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import OuterRef, Subquery
-from .models import Client, AddContacts, Goal, GoalUpdate
+from .models import Client, AddContacts, Goal, GoalUpdate, Actions
 from equipment.models import Equipment, EquipmentStatus
-from .forms import ClientForm, GoalForm, GoalUpdateForm, PhoneNumberFormSet, PhoneNumberFormSetUpdate
+from .forms import ClientForm, GoalForm, GoalUpdateForm, PhoneNumberFormSet, PhoneNumberFormSetUpdate, ActionForm
 from django.forms import inlineformset_factory
 from django.views.generic import CreateView,DetailView, ListView, UpdateView, DeleteView
 from django.urls import reverse_lazy
@@ -70,8 +70,6 @@ class ClientDetails(DetailView):
             status_history__client=current_client
         ).distinct()
 
-        # Get the related phone numbers
-
         context['recent_equipment_list'] = equipment_with_newest_status
         # This grabs all phone numbers based on the 'relate name' in the model
         context['client_add_contacts'] = current_client.phone_numbers.all()
@@ -88,6 +86,12 @@ class ClientDetails(DetailView):
             goal.days_to_go = delta.days
             goal.updates = goal.g_status_record.all()
         context['client_goals']=client_goals
+        
+        # Get the releate actions
+    
+        context['client_actions']=current_client.actions_for_client.all()
+
+        
         return context
 
 def update_client(request, client_id):
@@ -184,3 +188,41 @@ class CreateGoalUpdate(CreateView):
             kwargs['hide_progress_field'] = True
         
         return kwargs
+
+#---------------------- Actions --------------------------#
+
+class CreateAction(CreateView):
+    model = Actions
+    form_class = ActionForm
+    template_name = 'clients/action.html'
+    success_url = reverse_lazy('list_clients')
+
+    def get_initial(self):
+        # Access the URL parameter 'client_id' from self.kwargs
+        client_id = self.kwargs.get('client_id')
+        
+        # Look up the actual Client object from the database
+        client_instance = get_object_or_404(Client, pk=client_id)
+        
+        # This is where you set initial values for the form's fields
+        return {'client': client_instance}
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get the context
+        context = super().get_context_data(**kwargs)
+        
+        # Add the client instance to the context for template display
+        client_id = self.kwargs.get('client_id')
+        context['client'] = get_object_or_404(Client, pk=client_id)
+        
+        return context
+    
+class ListActions(ListView):
+    model=Actions
+    context_object_name='actions'
+    template_name='clients/list_actions.html'
+
+class ActionDetails(DetailView):
+    model=Actions
+    context_object_name='action'
+    template_name='clients/action_details.html'

@@ -14,4 +14,4 @@ class CustomUser(AbstractUser):
     # ACCOUNT_USERNAME_REQUIRED = False
 
     def __str__(self):
-        return self.email
+        return self.first_name + ' ' + self.last_name

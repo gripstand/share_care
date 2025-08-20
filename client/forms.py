@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django import forms
-from .models import Client, AddContacts, Goal, GoalUpdate
+from .models import Client, AddContacts, Goal, GoalUpdate, Actions
 from django.forms import inlineformset_factory
 from django.forms import ModelForm
 from phonenumber_field.formfields import PhoneNumberField
@@ -99,3 +99,14 @@ class GoalUpdateForm(forms.ModelForm):
             self.fields.pop('g_status_progress_level')
 
 # print(f"forms.py: PhoneNumberFormSetUpdate is of type {type(PhoneNumberFormSetUpdate)}")
+
+
+class ActionForm(forms.ModelForm):
+    class Meta:
+        model=Actions
+        widgets= {
+                'action_date':DatePickerInput(),
+                'client': forms.HiddenInput(),
+                'action_outcome': forms.RadioSelect,
+        }
+        fields='__all__'

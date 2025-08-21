@@ -1,0 +1,12 @@
+{% extends "two_factor/_base.html" %}
+{% load i18n %}
+{% block title %}
+    Log into the SHARE Care System
+{% endblock %}
+{% block content %}
+    <form action="" method="post">
+        {% csrf_token %}
+        {% include "two_factor/_wizard_forms.html" %}
+        <button type="submit" class="btn btn-primary">{% trans "Log in" %}</button> <button type="submit" class="btn btn-primary">Forgot Password</button>
+    </form>
+{% endblock %}

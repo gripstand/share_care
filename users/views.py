@@ -9,6 +9,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import login, get_user_model
 from .forms import CustomUserForm
+from two_factor.views import LoginView
 
 
 # Create your views here.
@@ -18,6 +19,10 @@ from .forms import CustomUserForm
 #     form_class = UserCreationForm# This should be your ModelForm
 #     template_name = 'user_form.html'
 #     success_url = '/success/'
+
+
+class CustomTwoFactorLoginView(LoginView):
+    template_name = 'two_factor/login.html'
 
 
 @login_required

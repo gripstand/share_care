@@ -7,10 +7,30 @@
 {% endblock %}
 
 {% block content %}
-Name: {{eq.eq_name}}</br>
-Type: {{eq.eq_type}}</br>
-Value: ${{eq.eq_value}}</br>
-<p>
+
+
+
+<strong>Name</strong>: {{eq.eq_name}}</br>
+<strong>Type:</strong> {{eq.eq_type}}</br>
+<strong>Value:</strong> ${{eq.eq_value}}</br>
+    {% if eq.eq_serial_number %}
+        <strong>Number:</strong> {{eq.eq_serial_number}}</br>
+    {% endif %}
+    {% if eq.eq_funding_source %}
+        <strong>Funding Source:</strong> {{eq.eq_funding_source}}</br>
+    {% endif %}
+    {% if eq.eq_owner %}
+        <strong>Owner:</strong> {{eq.eq_owner}}</br>
+    {% endif %}
+    {% if eq.eq_client %}
+        <strong>Client Owner:</strong> {{eq.eq_client.first_name}} {{eq.eq_client.last_name}}</br>
+    {% endif %}
+    {% if eq.eq_date %}
+       <strong> Date Acquired:</strong> {{eq.eq_date}}</br>
+    {% endif %}
+    {% if eq.eq_notes %}
+        <strong>Notes:</strong> {{eq.eq_notes}}</br>
+    {% endif %}
     <h3>Status History</h3>
     {% if status_updates %}
         <ul>

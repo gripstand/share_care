@@ -100,6 +100,22 @@ class Client(MetaDataModel):
     cg_phone_main=models.CharField(max_length=20, verbose_name="Care Giver Phone", blank=True)
     cg_notes=models.TextField(verbose_name="Care Giver Notes", blank=True)
 
+    def save(self, *args, **kwargs):
+        # Only set a number if the field is empty (for a new record)
+        if not self.client_number:
+            # Find the last record and get its client_number
+            last_client = Client.objects.order_by('-client_number').first()
+            if last_client:
+                # If a record exists, increment its number by 1
+                self.client_number = last_client.client_number + 1
+            else:
+                # If this is the very first record, start at 1
+                self.client_number = 1000
+        
+        # Call the parent save method to actually save the object to the database
+        super().save(*args, **kwargs)
+
+
     def __str__(self):
         return self.last_name + ", " + self.first_name
 
@@ -124,8 +140,10 @@ class Eval(models.Model):
     eval_communication=models.ForeignKey(CommunicationsList, on_delete=models.CASCADE, related_name='eval_comm', verbose_name="Communication Capability")
     eval_mobility=models.CharField(max_length=50,choices=MobilityTypes.choices,blank=False,default='NORM')
     eval_notes=models.TextField()
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='evals_for_client')
     
-
+    def __str__(self):
+        return 'Evaluation on ' + self.eval_date.strftime('%m-%d-%Y') + ' by ' + self.eval_user.last_name + ', ' + self.eval_user.first_name
 
 
 

@@ -1,0 +1,74 @@
+
+{% extends 'base.html' %}
+
+{% load bootstrap5 %}
+
+{% block title %}
+Client Profile: {{client}}
+{% endblock %}
+
+{% block content %}
+
+Name: {{client.first_name}} {{client.last_name}}</br>
+email: {{client.email}}</br>
+<p>
+<h4>Equipment with this Client</h4>
+{% if recent_equipment_list %}
+    <ul>
+        {% for equipment in recent_equipment_list %}
+            <li>
+                {{ equipment.eq_name }} ({{ equipment.serial_number }})
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>{{ contact.name }} currently has no equipment.</p>
+{% endif %}
+
+<h4>Evaluations for this Client</h4>
+{% if client_evals %}
+    <ul>
+        {% for eval in client_evals %}
+        <li>{{eval}}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>{{ client.fist_name }} has no Evaluation Records in the system.</p>
+{% endif %}
+
+<h4>Current Goals for this Client</h4>
+{% if client_goals %}
+    <ul>
+        {% for goal in client_goals %}
+            <li>
+                {{ goal.goal_name }} Due {{goal.goal_target_date}} Which is in {{goal.days_to_go}} Days <a href="/client/add_goal_update/{{goal.id}}">Update this Goal</a>
+                    {% if goal.updates %}
+                        <ul>
+                        {% for update in goal.updates %}
+                            <li>{{ update.g_update_date }}: {{ update.g_status_update }}</li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>{{ client.fist_name }} has no goal.</p>
+{% endif %}
+
+<h4>Actions history for this Client</h4>
+{% if client_actions %}
+    <ul>
+        {% for action in client_actions %}
+        <li>{{action}}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>{{ client.fist_name }} has no Action history.</p>
+{% endif %}
+
+    <a href="{% url 'list_clients' %}" class="btn btn-info" role="button">List</a>  <a href="/client/update_client/{{client.id}}" class="btn btn-info" role="button">Update Client</a> 
+    <a href="/client/add_goal/{{client.id}}" class="btn btn-info" role="button">Add Goal</a>
+    <a href="/client/add_action/{{client.id}}" class="btn btn-info" role="button">Add Action</a>
+    <a href="/client/add_eval/{{client.id}}" class="btn btn-info" role="button">Add Evaluation</a>
+{% endblock %}

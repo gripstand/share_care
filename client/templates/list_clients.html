@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load bootstrap5 %}
+{% load phone_filters %}
+
+{% block title %}
+Listing all Clients
+{% endblock %}
+
+{% block content %}
+
+
+<script type="text/javascript" class="init">
+        $(document).ready(function() {
+            $('#myTable').DataTable();
+        });
+</script>
+
+<table id="myTable" class="display">  
+    <thead>
+    <tr>
+        <th>Client ID</th>
+        <th>Last Name</th>
+        <th>First Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>City</th>
+        <th colspan="2">Action</th>
+    </tr>
+    </thead>
+{% for client in clients %}
+<tr>
+    <td>{{client.client_number}}</td>
+    <td>{{client.last_name}}</td>
+    <td>{{client.first_name}}</td>
+    <td>{{client.email}}</td>
+    <td>{{ client.phone_main|format_phone }}</td>
+    <td>{{client.city}}</td>
+    <td><a href='/client/client_detail/{{client.id}}'>View</a></td>
+    <td><a href='/client/update_client/{{client.id}}'>Edit</a></td>    
+</tr>
+{% endfor %}
+</table>
+
+<a href='/client/create_client/'>Add New</a>
+{% endblock %}

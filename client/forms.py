@@ -39,7 +39,8 @@ class ClientForm(forms.ModelForm):
     class Meta:
         model = Client
         widgets= {
-             'dob':DatePickerInput()
+             'dob':DatePickerInput(),
+             'client_number':forms.HiddenInput(),
         }
         fields='__all__'
 

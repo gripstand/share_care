@@ -18,8 +18,8 @@ def index(request):
 
 
 
-#### ________________  Contact Views --------------
-
+#### ________________  Client Views --------------
+@login_required
 def create_client(request):
 
     if request.method == 'POST':
@@ -41,15 +41,15 @@ def create_client(request):
     }
     return render(request, 'clients/create_client.html', context)
 
-class ListClients(ListView):
+class ListClients(LoginRequiredMixin, ListView):
     model=Client
     context_object_name='clients'
-    template_name='clients/list_clients.html'
+    template_name='list_clients.html'
 
-class ClientDetails(DetailView):
+class ClientDetails(LoginRequiredMixin, DetailView):
     model=Client
     context_object_name='client'
-    template_name='clients/client_details.html'
+    template_name='client_details.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -90,10 +90,12 @@ class ClientDetails(DetailView):
         # Get the releate actions
     
         context['client_actions']=current_client.actions_for_client.all()
+        context['client_evals']=current_client.evals_for_client.all() #Note that you query this using the related name defined in the model
 
         
         return context
 
+@login_required
 def update_client(request, client_id):
     client = get_object_or_404(Client, pk=client_id)
 
@@ -121,10 +123,10 @@ def update_client(request, client_id):
 
 #---------------------- GOALS --------------------------#
 
-class CreateGoal(CreateView):
+class CreateGoal(LoginRequiredMixin, CreateView):
     model = Goal
     form_class = GoalForm
-    template_name = 'clients/create_goal.html'
+    template_name = 'create_goal.html'
     success_url = reverse_lazy('list_clients')
 
     def get_initial(self):
@@ -149,10 +151,10 @@ class CreateGoal(CreateView):
     
 #### ________________ GOAL UPDATE________________ ####
     
-class CreateGoalUpdate(CreateView):
+class CreateGoalUpdate(LoginRequiredMixin, CreateView):
     model=GoalUpdate
     form_class=GoalUpdateForm
-    template_name='clients/goal_update.html'
+    template_name='goal_update.html'
     success_url = reverse_lazy('list_clients')
 
     def get_initial(self):
@@ -191,10 +193,10 @@ class CreateGoalUpdate(CreateView):
 
 #---------------------- Actions --------------------------#
 
-class CreateAction(CreateView):
+class CreateAction(LoginRequiredMixin, CreateView):
     model = Actions
     form_class = ActionForm
-    template_name = 'clients/action.html'
+    template_name = 'action.html'
     success_url = reverse_lazy('list_clients')
 
     def get_initial(self):
@@ -217,22 +219,22 @@ class CreateAction(CreateView):
         
         return context
     
-class ListActions(ListView):
+class ListActions(LoginRequiredMixin, ListView):
     model=Actions
     context_object_name='actions'
-    template_name='clients/list_actions.html'
+    template_name='list_actions.html'
 
-class ActionDetails(DetailView):
+class ActionDetails(LoginRequiredMixin, DetailView):
     model=Actions
     context_object_name='action'
-    template_name='clients/action_details.html'
+    template_name='action_details.html'
 
 #---------------------- Evaluations --------------------------#
 
-class CreateEval(CreateView):
+class CreateEval(LoginRequiredMixin, CreateView):
     model = Eval
     form_class = EvalForm
-    template_name = 'clients/evaluation.html'
+    template_name = 'evaluation.html'
     success_url = reverse_lazy('list_clients')
 
     def get_initial(self):

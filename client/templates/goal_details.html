@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% load bootstrap5 %}
+
+{% block title %}
+Goal For: {{goal.client}}
+{% endblock %}
+
+{% block content %}
+<strong>Goal Name:</strong> {{ goal.goal_name }}<br>
+<strong>Goal Type:</strong> {{ goal.goal_type }}<br>
+<strong>Tracking Type:</strong> {{ goal.goal_tack_type }}<br>
+<strong>Status:</strong> {{ goal.goal_status }}<br>
+<strong>Target Date:</strong> {{ goal.goal_target_date }}<br>
+<strong>Days to Go:</strong> {{ goal.days_to_go }}<br>
+<strong>Time Spent:</strong> {{ goal.goal_time_spent }} minutes<br>
+<p>
+<h4>Updates on this Goal</h4>
+{% if goal_updates %}
+    <ul>
+    {% for update in goal_updates %}
+        <li>
+            <strong>{{ update.g_update_date }}: {{ update.g_status_update }}</strong><br>
+            <strong>Staff Time: </strong>{{ update.g_status_staff_time }}<br>
+            {% if update.g_status_progress_level %}
+                <strong>Progress Level:</strong> {{ update.g_status_progress_level }}
+            {% endif %}
+            
+
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No updates on this goal.</p>
+{% endif %}
+<p>
+<a href="/client/add_goal_update/{{goal.id}}" class="btn btn-info" role="button">Add an Update to This Goal</a> 
+</p>
+<a href="/client/update_goal/{{goal.id}}" class="btn btn-info" role="button">Edit Goal</a>
+<a href="/client/add_goal/{{goal.client.id}}" class="btn btn-info" role="button">Set New Goal</a> 
+<a href="/client/client_detail/{{goal.client.id}}" class="btn btn-info" role="button">Client Details</a> 
+
+{% endblock %}

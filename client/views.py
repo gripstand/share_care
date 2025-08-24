@@ -3,9 +3,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import OuterRef, Subquery
-from .models import Client, AddContacts, Goal, GoalUpdate, Actions, Eval
+from .models import Client, AddContacts, Goal, GoalUpdate, Actions, Eval, Ticket
 from equipment.models import Equipment, EquipmentStatus
-from .forms import ClientForm, GoalForm, GoalUpdateForm, PhoneNumberFormSet, PhoneNumberFormSetUpdate, ActionForm, EvalForm
+from .forms import ClientForm, GoalForm, GoalUpdateForm, PhoneNumberFormSet, PhoneNumberFormSetUpdate, ActionForm, EvalForm, TicketForm
 from django.forms import inlineformset_factory
 from django.views.generic import CreateView,DetailView, ListView, UpdateView, DeleteView
 from django.urls import reverse_lazy
@@ -39,7 +39,7 @@ def create_client(request):
         'client_form': client_form,
         'formset': formset,
     }
-    return render(request, 'clients/create_client.html', context)
+    return render(request, 'create_client.html', context)
 
 class ListClients(LoginRequiredMixin, ListView):
     model=Client
@@ -118,7 +118,7 @@ def update_client(request, client_id):
         'client': client, # Pass the entire object
         'client_id': client.id, # Pass the ID to the template
     }
-    return render(request, 'clients/create_client.html', context)
+    return render(request, 'create_client.html', context)
 
 
 #---------------------- GOALS --------------------------#
@@ -148,7 +148,32 @@ class CreateGoal(LoginRequiredMixin, CreateView):
         context['client'] = get_object_or_404(Client, pk=client_id)
         
         return context
-    
+
+class GoalDetails(LoginRequiredMixin, DetailView):
+    model=Goal
+    context_object_name='goal'
+    template_name='goal_details.html'
+
+    def get_context_data(self, **kwargs):
+        # Call the parent class's get_context_data to get the default context
+        context = super().get_context_data(**kwargs)
+        
+        # Access the current Goal object from the context
+        goal_object = context['goal']
+        
+        # Use the related name to get all related GoalUpdate records
+        # The related name is 'g_status_record'
+        # .all() retrieves all related objects from the database
+        goal_updates = goal_object.g_status_record.all()
+        
+        # Add the GoalUpdate records to the context
+        context['goal_updates'] = goal_updates
+        
+        return context
+
+
+
+
 #### ________________ GOAL UPDATE________________ ####
     
 class CreateGoalUpdate(LoginRequiredMixin, CreateView):
@@ -229,6 +254,58 @@ class ActionDetails(LoginRequiredMixin, DetailView):
     context_object_name='action'
     template_name='action_details.html'
 
+class UpdateAction(LoginRequiredMixin, UpdateView):
+    model = Actions
+    form_class = ActionForm
+    template_name = 'action.html'
+    #success_url = reverse_lazy('list_clients')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['client'] = self.object.client  # Pass the client object to the template
+        return context
+
+    def get_object(self, queryset=None):
+        action_id = self.kwargs.get('pk')
+        return get_object_or_404(Actions, pk=action_id)
+    
+    def get_success_url(self):
+        return reverse_lazy('action_detail', kwargs={'pk': self.object.pk})
+
+
+class CreateTicket(LoginRequiredMixin, CreateView):
+    model = Ticket
+    form_class = TicketForm
+    template_name = 'ticket.html'
+    success_url = reverse_lazy('list_clients')
+
+    def get_initial(self):
+        # Access the URL parameter 'action_id' from self.kwargs
+        action_id = self.kwargs.get('action_id')
+        
+        # Look up the actual Action object from the database
+        action_instance = get_object_or_404(Actions, pk=action_id)
+        
+        # This is where you set initial values for the form's fields
+        return {
+            'action': action_instance,
+            'ticket_created_by': self.request.user,  # Set the current user as the creator
+            'ticket_date': date.today()  # Set today's date as the ticket date
+        }
+
+    # def get_context_data(self, **kwargs):
+    #     # Call the base implementation first to get the context
+    #     context = super().get_context_data(**kwargs)
+        
+    #     # Add the action instance to the context for template display
+    #     action_id = self.kwargs.get('action_id')
+    #     context['action'] = get_object_or_404(Actions, pk=action_id)
+        
+    #     return context
+
+
+
+
 #---------------------- Evaluations --------------------------#
 
 class CreateEval(LoginRequiredMixin, CreateView):
@@ -255,3 +332,26 @@ class CreateEval(LoginRequiredMixin, CreateView):
         client_id = self.kwargs.get('client_id')
         context['client'] = get_object_or_404(Client, pk=client_id)
         return context
+    
+class UpdateEval(LoginRequiredMixin, UpdateView):
+    model = Eval
+    form_class = EvalForm
+    template_name = 'evaluation.html'
+    #success_url = reverse_lazy('list_clients')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['client'] = self.object.client  # Pass the client object to the template
+        return context
+
+    def get_object(self, queryset=None):
+        eval_id = self.kwargs.get('pk')
+        return get_object_or_404(Eval, pk=eval_id)
+    
+    def get_success_url(self):
+        return reverse_lazy('eval_detail', kwargs={'pk': self.object.pk})
+    
+class EvalDetails(LoginRequiredMixin, DetailView):
+    model=Eval
+    context_object_name='eval'
+    template_name='eval_details.html'

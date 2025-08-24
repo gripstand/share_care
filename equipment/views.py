@@ -15,7 +15,7 @@ class CreateEquipment(CreateView):
     model=Equipment
     form_class=EquipmentForm
     #context_object_name='equipment'
-    template_name='equipment/create_equipment.html'
+    template_name='create_equipment.html'
     success_url=reverse_lazy('list_equipment')
     
     def form_valid(self, form):
@@ -35,19 +35,19 @@ class CreateEquipment(CreateView):
 class ListEquipment(ListView):
     model=Equipment
     context_object_name='equipment'
-    template_name='equipment/list_equipment.html'
+    template_name='list_equipment.html'
 
 class UpdateEquipment(UpdateView):
     model=Equipment
     form_class=EquipmentForm
     context_object_name='eq'
-    template_name='equipment/create_equipment.html'
+    template_name='create_equipment.html'
     success_url=reverse_lazy('list_equipment')
 
 class DetailEquipment(DetailView):
     model=Equipment
     context_object_name='eq'
-    template_name='equipment/equipment_detail.html'
+    template_name='equipment_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -68,7 +68,7 @@ class DetailEquipment(DetailView):
 class CreateEqStatus(CreateView):
     model = EquipmentStatus
     form_class = EqStatusForm
-    template_name = 'equipment/equipment_status.html'
+    template_name = 'equipment_status.html'
     success_url = reverse_lazy('list_equipment')
 
     # The following function gets the last record saved for this equipment so it can pass that to the form in order to determine what status types are available

@@ -9,6 +9,6 @@
 Hi {{ user.username }}!
 {% else %}
 <p>This website is only available to authorized staff and volunteers of the SHARE foundation.  If you are authorized, and are having issues logging in, please contact SHARE</p>
-<a href="{% url 'login' %}" class="btn btn-info" role="button">Log Into the System</a>
+<a href="{% url 'two_factor:login' %}" class="btn btn-info" role="button">Log Into the System</a>
 {% endif %}
 {% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% load bootstrap5 %}
+
+{% block title %}
+Record the followng Action performed on behalf of: {{action.client}}
+{% endblock %}
+
+{% block content %}
+
+<strong>Action Date:</strong> {{ action.action_date }}<br>
+<strong>Action Type:</strong> {{ action.action_type }}<br>
+<strong>Action Outcome: </strong>{{ action.action_outcome }}<br>
+<strong>Action Initiated By:</strong> {{ action.action_init_by }}<br>
+<strong>Follow Up Period: </strong>{{ action.action_follow_up_period }}<br>
+<strong>Follow Up Date: </strong>{{ action.action_follow_up_date }}<br>
+<strong>Reason Code: </strong>{{ action.action_reason_code }}<br>
+<strong>Notes:</strong> {{ action.action_notes }}<br>
+<strong>Client: </strong>{{ action.client }}<br>
+
+<a href="/client/update_action/{{action.id}}" class="btn btn-info" role="button">Update Action</a> 
+
+<a href="/client/add_ticket/{{action.id}}" class="btn btn-info" role="button">Open Ticket</a> 
+
+{% endblock %}

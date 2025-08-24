@@ -41,5 +41,6 @@ def send_initial_password_setup_email(sender, instance, created, **kwargs):
             settings.DEFAULT_FROM_EMAIL,
             [instance.email]
         )
+    
         msg.attach_alternative(email_html_message, "text/html")
         msg.send()

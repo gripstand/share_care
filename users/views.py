@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from .models import CustomUser
@@ -27,27 +27,29 @@ class CustomTwoFactorLoginView(LoginView):
 
 @login_required
 def CreateUser(request):
-    form=CustomUserForm(request.POST)
-    if form.is_valid():
-        #form.username=form.cleaned_data.get("email")
-        user = form.save(commit=False)
-        user.set_unusable_password()
-        user.username=form.cleaned_data.get("email")
-        user.save()
-        
+    if request.method == 'POST':
+        form = CustomUserForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_unusable_password()
+            user.username = form.cleaned_data.get("email")
+            user.save()
+            # Redirect to the success URL after the user is saved
+            return redirect('list_users')
+        else:
+            # If the form is invalid, re-render the page with errors
+            context = {"form": form}
+            return render(request, 'create_users.html', context)
     else:        
-        form=CustomUserForm()
-
-    context={
-        "form":form
-    }
-    return render(request, 'users/user_form.html', context)
+        form = CustomUserForm()
+        context = {"form": form}
+        return render(request, 'user_form.html', context)
 
 User = get_user_model()
 
 class AllUsers(LoginRequiredMixin,ListView):
     model=User
-    template_name='users/list_users.html'
+    template_name='list_users.html'
     context_object_name='users'
     paginate_by=25
     def get_queryset(self):
@@ -57,7 +59,7 @@ class AllUsers(LoginRequiredMixin,ListView):
 class UpdateUser(UpdateView):
     model=User
     context_object_name='users'
-    template_name='users/UserForm'
+    template_name='UserForm'
     form_class=CustomUserForm
     success_url = reverse_lazy('list_users')
     
@@ -80,4 +82,4 @@ class UpdateUser(UpdateView):
     
 def UserProfile(request,pk):
     user=get_object_or_404(CustomUser, pk=pk)
-    return render(request,'users/user_profile.html',context={'this_user':user})
+    return render(request,'user_profile.html',context={'this_user':user})

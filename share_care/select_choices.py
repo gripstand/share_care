@@ -99,4 +99,44 @@ class EquipmentOwnerList(models.TextChoices):
     FOUNDATION='Foundation','Foundation'
     THIRD_PARTY='Third Party','Third Party'
     
-  
+class ActionTypes(models.TextChoices):
+    PHONE='Phone Call','Phone Call',
+    VIRTUAL='Virtual Meeting','Virtual Meeting',
+    IN_PERSON='In Person','In Person',
+    OFFICE_VISIT='Office Visit','Office Visit',
+    EMAIL='Email Exchange','Email Exchange',
+    TRAIN= 'Training','Training Request',
+    EQ_ISSUE='Equipment Issue','Equipment Issue',
+    TEXT='Text Message','Text Message',
+    TEAMVIEWER='TeamViewer Consult','TeamViewer Consult',
+    HW_SW_IN='Hardware / Software Delivered','Hardware / Software Delivered',
+    HW_SW_OUT='Hardware / Software Pick-Up','Hardware / Software Pick-Up'
+
+
+class ActionInitByTypes(models.TextChoices):
+    CLIENT='Client','Client'
+    CAREGIVER='Caregiver','Caregiver'
+    SHARE='SHARE','SHARE'
+    THIRD_PARTY='3rd Party','3rd Party'
+
+class ActionOutcomeList(models.TextChoices):
+    SUCCESSFUL='Successful','Successful'
+    FOLLOWUP='Requires Follow-Up','Requires Follow-Up'
+
+
+class ActionFollowUpPeriod(models.TextChoices):
+    ONE_WEEK='1 Week','1 Week'
+    TWO_WEEKS='2 Weeks','2 Weeks'
+    THREE_WEEKS='3 Weeks','3 Weeks'
+    ONE_MONTH='1 Month','1 Month'
+    TWO_MONTHS='2 Months','2 Months'
+    THREE_MONTHS='3 Months','3 Months'
+    SIX_MONTHS='6 Months','6 Months'
+    OTHER='Other','Other'
+
+class TicketStatusTypes(models.TextChoices):
+    ACTIVE='Active','Active'
+    RESOLVED='Resolved','Resolved'
+    CANCELED='Canceled','Canceled'
+    PENDING='Pending','Pending'
+    ON_HOLD='On Hold','On Hold'

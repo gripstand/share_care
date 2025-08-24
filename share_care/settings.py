@@ -173,7 +173,7 @@ DOMAIN_NAME = "127.0.0.1:8000"  # Use your production domain for production
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST = 'localhost'
+EMAIL_HOST = '127.0.0.1'
 EMAIL_PORT = 1025  # Default port for many local SMTP servers
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = False

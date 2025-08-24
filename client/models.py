@@ -1,6 +1,6 @@
 from django.db import models
 from users.models import CustomUser
-from share_care.select_choices import PhoneTypes, GoalTypes, MobilityTypes, GoalStatusTypes, GoalTrackTypes, Progress, GoalUpdateStatusTypes
+from share_care.select_choices import PhoneTypes, GoalTypes, MobilityTypes, GoalStatusTypes, GoalTrackTypes, Progress, GoalUpdateStatusTypes, ActionInitByTypes, ActionOutcomeList, ActionTypes, ActionFollowUpPeriod, TicketStatusTypes
 from localflavor.us.models import USStateField
 from django.utils import timezone
 from django_currentuser.db.models import CurrentUserField
@@ -177,40 +177,58 @@ class GoalUpdate(models.Model):
 
 
 class Actions(models.Model):
-    action_date=models.DateField()
+    action_date=models.DateField(default=timezone.now)
     action_user = models.ForeignKey(
         settings.AUTH_USER_MODEL,  # Use settings.AUTH_USER_MODEL for consistency
         on_delete=models.CASCADE,
         related_name='actions_by_user' # Give it a unique related_name
     )
-    ACTIONTYPES=(
-        ('Phone','Phone Call'),
-        ('Virtual','Virtual Meetng'),
-        ('In_Person','In Person'),
-        ('Office_Visit', 'Office Visit'),
-        ('Email','Email Exchange'),
-        ('Text','Text Message'),
-        ('TeamViewer','TeamViewer Consult'),
-        ('HW/SW In', 'Hardware / Software Delieverd'),
-        ('HW/SW Out', 'Hardware / Software Pick-Up'),
-    )
-    action_type=models.CharField(max_length=30,choices=ACTIONTYPES, default='Phone')
-    INITBYTYPES=(
-        ('Client','Client'),
-        ('Caregiver','Caregiver'),
-        ('SHARE','SHARE'),
-        ('3rd_Party','3rd Party'),
-    )
-    action_init_by=models.CharField(max_length=30,choices=INITBYTYPES, default='Client')
-    ACTIONOUTCOMES=(
-        ('Successful','Successful'),
-        ('Followup','Requires Follow-Up'),
-    )
-    action_outcome=models.CharField(max_length=30,choices=ACTIONOUTCOMES, default='Successful')
+    action_type=models.CharField(max_length=30,choices=ActionTypes.choices, default='Phone Call')
+    action_init_by=models.CharField(max_length=30,choices=ActionInitByTypes.choices, default='Client')
+    action_outcome=models.CharField(max_length=30,choices=ActionOutcomeList.choices, default='Successful')
+    action_follow_up_period=models.CharField(max_length=30,choices=ActionFollowUpPeriod.choices, blank=True, null=True)
+    action_follow_up_date=models.DateField(null=True, blank=True, verbose_name="Follow Up Date")
     action_reason_code=models.ForeignKey(ReasonTopicsList, on_delete=models.CASCADE, related_name='reason_for_action')
     action_notes=models.TextField(null=True, blank=True)
     client=models.ForeignKey(Client, on_delete=models.CASCADE, related_name='actions_for_client')
+    action_ticket_created=models.BooleanField(default=False)
 
     def __str__(self):
         return self.action_date.strftime('%m-%d-%Y') + ' ' + self.action_type
 
+class Ticket(models.Model):
+    ticket_slug=models.CharField(max_length=30)
+    ticket_create_date=models.DateField(default=timezone.now)
+    ticket_created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,  # Use settings.AUTH_USER_MODEL for consistency
+        on_delete=models.CASCADE,
+        related_name='tickets_created_by_user' # Give it a unique related_name
+    )
+    ticket_issue=models.TextField()
+    ticket_status=models.CharField(choices=TicketStatusTypes.choices, max_length=30, default='ACTIVE')
+    ticket_resolved_date=models.DateField(null=True, blank=True)
+    ticket_assigned_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL,  # Use settings.AUTH_USER_MODEL for consistency
+        on_delete=models.CASCADE,
+        related_name='assigned_user', # Give it a unique related_name
+        null=True,
+        blank=True
+    )
+    ticket_open=models.BooleanField(default=True)
+    action=models.ForeignKey(Actions, on_delete=models.CASCADE, related_name='ticket_for_action')
+
+    def __str__(self):
+        return self.ticket_slug
+    
+class TicketUpdate(models.Model):
+    ticket=models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name='updates_for_ticket')
+    ticket_update_date=models.DateField(default=timezone.now)
+    ticket_update_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,  # Use settings.AUTH_USER_MODEL for consistency
+        on_delete=models.CASCADE,
+        related_name='ticket_updates_by_user' # Give it a unique related_name
+    )
+    ticket_update_notes=models.TextField()
+
+    def __str__(self):
+        return f"Update on {self.ticket_update_date} by {self.ticket_update_by}"

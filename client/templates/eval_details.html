@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% load bootstrap5 %}
+
+{% block title %}
+Evaluation Record For: {{eval.client}}
+{% endblock %}
+
+{% block content %}
+<strong>Evaluation Date:</strong> {{ eval.eval_date }}<br>
+<strong>Evaluator:</strong> {{ eval.eval_user }}<br>
+<strong>Time Spent:</strong> {{ eval.eval_time }} minutes<br>
+<strong>Core Challenge:</strong> {{ eval.eval_core_challenge }}<br>
+<strong>Communication Abilities:</strong> {{ eval.eval_communication }}<br>
+<strong>Mobility:</strong> {{ eval.eval_mobility }}<br>
+<strong>Notes:</strong> {{ eval.eval_notes }}<br>
+<strong>Client: </strong>{{ eval.client }}<br>
+<a href="/client/update_eval/{{eval.id}}" class="btn btn-info" role="button">Update Evaluation</a>
+<a href="/client/add_eval/{{eval.client.id}}" class="btn btn-info" role="button">Add Evaluation</a>  
+<a href="/client/client_detail/{{eval.client.id}}" class="btn btn-info" role="button">Client Details</a> 
+{% endblock %}

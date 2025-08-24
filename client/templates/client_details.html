@@ -17,7 +17,7 @@ email: {{client.email}}</br>
     <ul>
         {% for equipment in recent_equipment_list %}
             <li>
-                {{ equipment.eq_name }} ({{ equipment.serial_number }})
+                {{ equipment.eq_name }} ({{ equipment.eq_serial_number }})
             </li>
         {% endfor %}
     </ul>
@@ -29,7 +29,7 @@ email: {{client.email}}</br>
 {% if client_evals %}
     <ul>
         {% for eval in client_evals %}
-        <li>{{eval}}</li>
+        <li>{{eval}}  <a href="/client/eval_detail/{{eval.id}}">Details</a></li>
         {% endfor %}
     </ul>
 {% else %}
@@ -41,7 +41,7 @@ email: {{client.email}}</br>
     <ul>
         {% for goal in client_goals %}
             <li>
-                {{ goal.goal_name }} Due {{goal.goal_target_date}} Which is in {{goal.days_to_go}} Days <a href="/client/add_goal_update/{{goal.id}}">Update this Goal</a>
+                {{ goal.goal_name }} Due {{goal.goal_target_date}} Which is in {{goal.days_to_go}} Days <a href="/client/goal_detail/{{goal.id}}">Details</a>
                     {% if goal.updates %}
                         <ul>
                         {% for update in goal.updates %}
@@ -60,7 +60,7 @@ email: {{client.email}}</br>
 {% if client_actions %}
     <ul>
         {% for action in client_actions %}
-        <li>{{action}}</li>
+        <li>{{action}} <a href='/client/action_detail/{{action.pk}}'>Details</a></li>
         {% endfor %}
     </ul>
 {% else %}

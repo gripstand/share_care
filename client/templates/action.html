@@ -8,6 +8,7 @@
 
 {% block content %}
 {% if form.non_field_errors %}
+
 <div class="alert alert-danger" role="alert">
     {% for error in form.non_field_errors %}
         {{ error }}
@@ -16,9 +17,66 @@
 {% endif %}
 <form method="post">
     {% csrf_token %}
+ 
     {{form.client}}
     {% bootstrap_form form layout=inline %}
+
   
     <button type="submit" class="btn btn-primary">Save Goal</button>
 </form>
+
+
+
+<!--
+ <script>
+function updateFollowUpDate() {
+  const periodSelect = document.getElementById('id_action_follow_up_period');
+  const datepickerElement = $('#id_action_follow_up_date');
+  
+  // Start with today's date
+  const startDate = new Date();
+  let newFollowUpDate = new Date(startDate);
+  
+  const selectedPeriod = periodSelect.value;
+
+  switch (selectedPeriod) {
+    case '1 Week':
+      newFollowUpDate.setDate(newFollowUpDate.getDate() + 7);
+      break;
+    case '2 Weeks':
+      newFollowUpDate.setDate(newFollowUpDate.getDate() + 14);
+      break;
+    case '3 Weeks':
+      newFollowUpDate.setDate(newFollowUpDate.getDate() + 21);
+      break;
+    case '1 Month':
+      newFollowUpDate.setMonth(newFollowUpDate.getMonth() + 1);
+      break;
+    case '2 Months':
+      newFollowUpDate.setMonth(newFollowUpDate.getMonth() + 2);
+      break;
+    case '3 Months':
+      newFollowUpDate.setMonth(newFollowUpDate.getMonth() + 3);
+      break;
+    case '6 Months':
+      newFollowUpDate.setMonth(newFollowUpDate.getMonth() + 6);
+      break;
+    default:
+      // For "Other" or the empty value, use today's date
+      newFollowUpDate = startDate;
+      break;
+  }
+alert("New Follow Up Date: " + startDate.toLocaleDateString());
+  // Set the datepicker with the corrected Date object
+  datepickerElement.datepicker('setDate', newFollowUpDate);
+  //datepickerElement.date(newFollowUpDate);
+}
+
+// Set the initial value on page load
+window.onload = updateFollowUpDate;
+
+ </script>
+
+-->
+
 {% endblock %}

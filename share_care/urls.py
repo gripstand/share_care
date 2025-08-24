@@ -19,6 +19,7 @@ from django.views.generic.base import TemplateView
 from django.urls import path, include
 from django.views.generic import RedirectView
 from django.contrib.auth import views as auth_views
+from users.views import CustomTwoFactorLoginView
 from two_factor.urls import urlpatterns as tf_urls
 
 urlpatterns = [
@@ -28,6 +29,7 @@ urlpatterns = [
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
     path('users/', include('users.urls')),
     path('equipment/', include('equipment.urls')),
+    path('account/login/', CustomTwoFactorLoginView.as_view(), name='login'),
     path('',include(tf_urls)),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 ]

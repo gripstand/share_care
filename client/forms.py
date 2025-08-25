@@ -5,6 +5,9 @@ from django.forms import inlineformset_factory
 from django.forms import ModelForm
 from phonenumber_field.formfields import PhoneNumberField
 from datetime import date, timedelta
+from share_care.widgets import ExpiryDateWidget
+from share_care.fields import TimeSumField
+#from .fields import TimeTrackWidget
 #from bootstrap_datepicker_plus.widgets import DatePickerInput
 
 
@@ -70,6 +73,7 @@ PhoneNumberFormSetUpdate = inlineformset_factory(
 
 
 class GoalForm(forms.ModelForm):
+    goal_time_spent = TimeSumField(label="time spent")
     class Meta:
         model=Goal
         widgets= {
@@ -77,10 +81,16 @@ class GoalForm(forms.ModelForm):
                 'goal_target_date':DatePickerInput(),
                 'client': forms.HiddenInput(),
                 'goal_status': forms.RadioSelect,
+                #'goal_time_spent': TimeTrackWidget(),
+                #'goal_time_spent': TimeSumField()
         }
+        
+        #fields = ['goal_date', 'goal_target_date', 'client', 'goal_status', 'goal_time_spent']
         fields='__all__'
 
+
 class GoalUpdateForm(forms.ModelForm):
+    goal_time_spent = TimeSumField(label="time spent")
     class Meta:
         model=GoalUpdate
         widgets= {

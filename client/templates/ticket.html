@@ -3,29 +3,29 @@
 {% load static %}
 
 {% block title %}
-    Create Ticket For {{action}}
+    Ticket For {{action}}
 {% endblock %}
 
 {% block content %}
-{{form.ticket_create_date}}
-{{form.ticket_created_by}}
-{{form.ticket_open}}
-{{form.action}}
 {% if form.non_field_errors %}
-
-<div class="alert alert-danger" role="alert">
-    {% for error in form.non_field_errors %}
-        {{ error }}
-    {% endfor %}
-</div>
+    <div class="alert alert-danger" role="alert">
+        {% for error in form.non_field_errors %}
+            {{ error }}
+        {% endfor %}
+    </div>
 {% endif %}
 <form method="post">
     {% csrf_token %}
- 
-    {{form.client}}
     {% bootstrap_form form layout=inline %}
+  {{ formset.management_form }}
+    <div id="form-container">
+        {% for form in formset %}
+            <div class="form-row">
+                {% bootstrap_form form %}
+            </div>
+        {% endfor %}
+    </div>
 
-  
     <button type="submit" class="btn btn-primary">Save Ticket</button>
 </form>
 {% endblock %}

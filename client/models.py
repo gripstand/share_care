@@ -197,23 +197,17 @@ class Actions(models.Model):
         return self.action_date.strftime('%m-%d-%Y') + ' ' + self.action_type
 
 class Ticket(models.Model):
-    ticket_slug=models.CharField(max_length=30)
+    ticket_slug=models.CharField(max_length=30, verbose_name="Ticket Short Name")
     ticket_create_date=models.DateField(default=timezone.now)
     ticket_created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,  # Use settings.AUTH_USER_MODEL for consistency
         on_delete=models.CASCADE,
-        related_name='tickets_created_by_user' # Give it a unique related_name
+        related_name='tickets_created_by_user',
+        verbose_name="Ticket created by"
     )
-    ticket_issue=models.TextField()
-    ticket_status=models.CharField(choices=TicketStatusTypes.choices, max_length=30, default='ACTIVE')
-    ticket_resolved_date=models.DateField(null=True, blank=True)
-    ticket_assigned_to = models.ForeignKey(
-        settings.AUTH_USER_MODEL,  # Use settings.AUTH_USER_MODEL for consistency
-        on_delete=models.CASCADE,
-        related_name='assigned_user', # Give it a unique related_name
-        null=True,
-        blank=True
-    )
+    ticket_issue=models.TextField(verbose_name="Issue Description")
+    ticket_status=models.CharField(choices=TicketStatusTypes.choices, max_length=30, default='ACTIVE', verbose_name="Ticket Status")
+    ticket_resolved_date=models.DateField(null=True, blank=True, verbose_name="Resolved Date")
     ticket_open=models.BooleanField(default=True)
     action=models.ForeignKey(Actions, on_delete=models.CASCADE, related_name='ticket_for_action')
 
@@ -226,9 +220,18 @@ class TicketUpdate(models.Model):
     ticket_update_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,  # Use settings.AUTH_USER_MODEL for consistency
         on_delete=models.CASCADE,
-        related_name='ticket_updates_by_user' # Give it a unique related_name
+        related_name='ticket_updates_by_user', # Give it a unique related_name
+        verbose_name="Update by",
     )
-    ticket_update_notes=models.TextField()
+    ticket_assign_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='ticket_assigned_to_user',
+        verbose_name="Assign to"
+    )
+    ticket_update_notes=models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"Update on {self.ticket_update_date} by {self.ticket_update_by}"
+    
+ 

@@ -1,32 +1,6 @@
 from django import forms
 from .widgets import ExpiryDateWidget
 
-# class TimeSumField(forms.MultiValueField):
-#     widget = ExpiryDateWidget
-
-#     def __init__(self, *args, **kwargs):
-#         fields = (
-#             # The first field for hours
-#             forms.ChoiceField(
-#                 choices=self.widget().get_hour_choices()
-#             ),
-#             # The second field for minutes
-#             forms.ChoiceField(
-#                 choices=self.widget().get_minute_choices()
-#             ),
-#         )
-#         super().__init__(fields, *args, **kwargs)
-
-#     def compress(self, data_list):
-#         if data_list and all(data_list):
-#             hours = int(data_list[0])
-#             minutes = int(data_list[1])
-#             # Sum the two values together as a single integer
-#             return hours + minutes
-#         return None
-
-
-#         )
 class TimeSumField(forms.MultiValueField):
     widget = ExpiryDateWidget
 

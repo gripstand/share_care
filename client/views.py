@@ -3,9 +3,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db.models import OuterRef, Subquery
-from .models import Client, AddContacts, Goal, GoalUpdate, Actions, Eval, Ticket
+from .models import Client, AddContacts, Goal, GoalUpdate, Actions, Eval, Ticket, TicketUpdate
 from equipment.models import Equipment, EquipmentStatus
-from .forms import ClientForm, GoalForm, GoalUpdateForm, PhoneNumberFormSet, PhoneNumberFormSetUpdate, ActionForm, EvalForm, TicketForm
+from .forms import ClientForm, GoalForm, GoalUpdateForm, PhoneNumberFormSet, PhoneNumberFormSetUpdate, ActionForm, EvalForm, TicketForm, TicketUpdateFormSet, TicketUpdateForm
 from django.forms import inlineformset_factory
 from django.views.generic import CreateView,DetailView, ListView, UpdateView, DeleteView
 from django.urls import reverse_lazy
@@ -19,27 +19,32 @@ def index(request):
 
 
 #### ________________  Client Views --------------
-@login_required
-def create_client(request):
 
-    if request.method == 'POST':
-        client_form = ClientForm(request.POST)
-        formset = PhoneNumberFormSet(request.POST)
+class CreateClient(LoginRequiredMixin, CreateView):
+    model = Client
+    form_class = ClientForm
+    template_name = 'create_client.html'
+    success_url = reverse_lazy('list_clients')
 
-        if client_form.is_valid() and formset.is_valid():
-            client = client_form.save()
-            formset.instance = client
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        if self.request.POST:
+            data['formset'] = PhoneNumberFormSet(self.request.POST)
+        else:
+            data['formset'] = PhoneNumberFormSet()
+        return data
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context['formset']
+
+        if formset.is_valid():
+            self.object = form.save()
+            formset.instance = self.object
             formset.save()
-            return redirect('list_clients')
-    else:
-        client_form = ClientForm()
-        formset = PhoneNumberFormSet()
-
-    context = {
-        'client_form': client_form,
-        'formset': formset,
-    }
-    return render(request, 'create_client.html', context)
+            return super().form_valid(form)
+        else:
+            return self.form_invalid(form)
 
 class ListClients(LoginRequiredMixin, ListView):
     model=Client
@@ -253,6 +258,15 @@ class ActionDetails(LoginRequiredMixin, DetailView):
     model=Actions
     context_object_name='action'
     template_name='action_details.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get the current client object
+        current_action = self.get_object()
+
+        # Get all tickets related to this action
+        context['action_tickets'] = current_action.ticket_for_action.all()
+        return context
 
 class UpdateAction(LoginRequiredMixin, UpdateView):
     model = Actions
@@ -272,6 +286,7 @@ class UpdateAction(LoginRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy('action_detail', kwargs={'pk': self.object.pk})
 
+# ---------------------- Tickets --------------------------#
 
 class CreateTicket(LoginRequiredMixin, CreateView):
     model = Ticket
@@ -279,29 +294,91 @@ class CreateTicket(LoginRequiredMixin, CreateView):
     template_name = 'ticket.html'
     success_url = reverse_lazy('list_clients')
 
-    def get_initial(self):
-        # Access the URL parameter 'action_id' from self.kwargs
-        action_id = self.kwargs.get('action_id')
-        
-        # Look up the actual Action object from the database
-        action_instance = get_object_or_404(Actions, pk=action_id)
-        
-        # This is where you set initial values for the form's fields
-        return {
-            'action': action_instance,
-            'ticket_created_by': self.request.user,  # Set the current user as the creator
-            'ticket_date': date.today()  # Set today's date as the ticket date
-        }
+    def dispatch(self, request, *args, **kwargs):
+        # Fetch the action object from the database once
+        self.action_instance = get_object_or_404(Actions, pk=kwargs.get('action_id'))
+        return super().dispatch(request, *args, **kwargs)
 
-    # def get_context_data(self, **kwargs):
-    #     # Call the base implementation first to get the context
-    #     context = super().get_context_data(**kwargs)
-        
-    #     # Add the action instance to the context for template display
-    #     action_id = self.kwargs.get('action_id')
-    #     context['action'] = get_object_or_404(Actions, pk=action_id)
-        
-    #     return context
+    def get_initial(self):
+        # Use the stored action object
+        return {
+            'action': self.action_instance,
+            'ticket_created_by': self.request.user,
+            'ticket_date': date.today(),
+        }
+    
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        # Use the stored action object
+        data['action'] = self.action_instance
+        # Add the formset logic as before
+        if self.request.POST:
+            data['formset'] = TicketUpdateFormSet(self.request.POST)
+        else:
+            data['formset'] = TicketUpdateFormSet()
+        return data
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context['formset']
+
+        # Check if the formset is valid before saving anything
+        if formset.is_valid():
+            # Step 1: Save the main Ticket form. This creates the parent object.
+            self.object = form.save()
+            
+            # Step 2: Associate the formset with the newly created Ticket object.
+            formset.instance = self.object
+
+            # Step 3: Iterate through each form in the formset and set the required user.
+            for f in formset:
+                # Only save the form if it's not marked for deletion
+                if not f.cleaned_data.get('DELETE', False):
+                    # Set the ticket_update_by field to the current user
+                    f.instance.ticket_update_by = self.request.user
+
+            # Step 4: Save the formset. The forms now have the required user value.
+            formset.save()
+            
+            # Step 5: Redirect to the success URL
+            return super().form_valid(form)
+        else:
+            # The formset's errors are a list, where each item is the errors for one form
+            print("Formset is NOT valid. All errors:")
+            print(formset.errors)
+            
+            # You can also iterate through each form to get specific errors
+            for f in formset:
+                if f.errors:
+                    print("Errors for form:")
+                    print(f.errors)
+            
+            return self.form_invalid(form)
+
+class AddTicketUpdate(LoginRequiredMixin, CreateView):
+    model = TicketUpdate
+    form_class = TicketUpdateForm
+    template_name = 'update_ticket.html'
+    success_url = reverse_lazy('list_clients')
+
+    def dispatch(self, request, *args, **kwargs):
+        # Fetch the ticket object from the database once
+        self.ticket_instance = get_object_or_404(Ticket, pk=kwargs.get('ticket_id'))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_initial(self):
+            # Use the stored ticket object
+            return {
+                'ticket': self.ticket_instance,
+                'ticket_update_date': date.today(),
+                'ticket_update_by': self.request.user,
+            }
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data['ticket'] = self.ticket_instance
+        data['previous_updates'] = self.ticket_instance.updates_for_ticket.all().order_by('-ticket_update_date')
+        return data
 
 
 

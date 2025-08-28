@@ -18,8 +18,25 @@ Record the followng Action performed on behalf of: {{action.client}}
 <strong>Notes:</strong> {{ action.action_notes }}<br>
 <strong>Client: </strong>{{ action.client }}<br>
 
+{% if action_tickets %}
+    <h3>Tickets associated with this Action</h3>
+    <ul>
+        {% for ticket in action_tickets %}
+            <li>
+                Ticket ID: {{ ticket.id }} - Created on: {{ ticket.ticket_create_date }} - Status: {% if ticket.ticket_open %} Open {% else %} Closed {% endif %} - <a href="/client/ticket/{{ticket.id}}">Details</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No tickets associated with this action.</p>
+{% endif %}
+
 <a href="/client/update_action/{{action.id}}" class="btn btn-info" role="button">Update Action</a> 
 
-<a href="/client/add_ticket/{{action.id}}" class="btn btn-info" role="button">Open Ticket</a> 
+{% if not action.ticket_for_action.exists %}
+<a href="/client/add_ticket/{{action.id}}" class="btn btn-primary" role="button">Open Ticket</a> 
+{% else %}
+<a href="#" class="btn btn-primary disabled" tabindex="-1" aria-disabled="true" role="button">Open Ticket</a> 
+{% endif %}
 
 {% endblock %}

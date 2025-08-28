@@ -6,3 +6,6 @@ __pycache__/
 
 # Ignore Django migrations cache
 */migrations/__pycache__/Qq
+
+# Ignore the Python virtual environment directory
+share_care_venv/

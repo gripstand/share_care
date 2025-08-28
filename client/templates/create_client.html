@@ -23,13 +23,15 @@
     <h3>Contact Details</h3>
     {% bootstrap_form client_form layout=inline %}
     <h3>Additional Contacts</h3>
-    {{ formset.management_form }}
-    <div id="form-container">
+{{ formset.management_form }}
+<div id="form-container">
     {% for form in formset %}
         <div class="form-row">
-        {{ form.as_p }}
+            <h5>Contact:</h5><hr/>
+            {% bootstrap_form form %}
         </div>
     {% endfor %}
+</div>
     <button type="button" class="btn btn-secondary" id="add-form">Add Another Number</button>
   
     <button type="submit" class="btn btn-primary">Save Contact</button>

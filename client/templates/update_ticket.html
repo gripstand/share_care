@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load bootstrap5 %}
+{% load static %}
+
+{% block title %}
+
+Update Ticket: {{ticket}}
+
+{% endblock %}
+
+{% block content %}
+<strong>Ticket Short Name:</strong> {{ticket.ticket_slug}}<br>
+<strong>Ticket status:</strong> {{ticket.ticket_status}}<br>
+<strong>Ticket Open:</strong> {% if ticket.ticket_open %} Yes {% else %} No {% endif %}<br>
+<strong>Ticket Created on:</strong> {{ticket.ticket_create_date}}<br>
+<strong>Ticket Created by:</strong> {{ticket.tickets_created_by_user}}<br>
+<strong>Ticket for Action:</strong> {{ticket.action}}<br>
+<strong>Client:</strong> {{ticket.action.client}}<br>
+<p>
+<h3>Ticket History</h3>
+{% if previous_updates %}
+    <ul>
+        {% for update in previous_updates %}
+            <li>{{ update.ticket_update_date }}: {{ update.ticket_update_notes }} (by {{ update.ticket_update_by_user }}) Assigned to: {{update.ticket_assign_to}}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No updates for this ticket yet.</p>
+{% endif %} 
+
+</p>
+
+
+
+{% if form.non_field_errors %}
+<div class="alert alert-danger" role="alert">
+    {% for error in client_form.non_field_errors %}
+        {{ error }}
+    {% endfor %}
+</div>
+{% endif %}
+<form method="post">
+    {% csrf_token %}
+    {{form.ticket_update_by}}
+    {% bootstrap_form form layout=inline %}
+    <button type="submit" class="btn btn-primary">Save Update</button>
+</form>
+{% endblock %}

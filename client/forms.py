@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django import forms
-from .models import Client, AddContacts, Goal, GoalUpdate, Actions, Eval, Ticket
+from .models import Client, AddContacts, Goal, GoalUpdate, Actions, Eval, Ticket, TicketUpdate
 from django.forms import inlineformset_factory
 from django.forms import ModelForm
 from phonenumber_field.formfields import PhoneNumberField
@@ -176,18 +176,47 @@ class ActionForm(forms.ModelForm):
 # ------------------- Tickets -------------------
 
 class TicketForm(forms.ModelForm):
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Check if the form is being instantiated for a new object
+        if not self.instance.pk: 
+            pass
     class Meta:
         model=Ticket
         widgets= {
                 
-                'ticket_created_by': forms.HiddenInput(),
-                'ticket_create_date':forms.HiddenInput(),
                 'ticket_open': forms.HiddenInput(),
+                'ticket_created_by': forms.HiddenInput(),
+                'client': forms.HiddenInput(),
                 'action': forms.HiddenInput(),
-                'ticket_resolved_date':forms.HiddenInput(),
-                
+                'ticket_resolved_date':forms.HiddenInput()
         }
         fields='__all__'
+
+
+class TicketUpdateForm(forms.ModelForm):
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['ticket_update_by'].required = False
+    class Meta:
+        model = TicketUpdate
+        widgets={
+            'ticket_update_date':forms.HiddenInput(),
+            'ticket': forms.HiddenInput(),
+            'ticket_update_by': forms.HiddenInput(),
+        }
+        fields = '__all__'
+
+
+TicketUpdateFormSet = inlineformset_factory(
+    Ticket, 
+    TicketUpdate,
+    form=TicketUpdateForm,
+    fields=['ticket', 'ticket_assign_to', 'ticket_update_by'],
+    extra=1, 
+    can_delete=False
+)
+
 
 
 # ------------------- Evaluations -------------------

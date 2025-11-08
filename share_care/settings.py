@@ -166,17 +166,17 @@ TWO_FACTOR_STRIC = True
 #AUTH_USER_MODEL = 'accounts.STUser'
 
 # settings.py
-SITE_NAME = "My Awesome App"
+SITE_NAME = "SHARE Care System"
 DOMAIN_NAME = "127.0.0.1:8000"  # Use your production domain for production
 
 # Email settings
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST = '127.0.0.1'
-EMAIL_PORT = 1025  # Default port for many local SMTP servers
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = False
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_HOST = '127.0.0.1'
+# EMAIL_PORT = 1025  # Default port for many local SMTP servers
+# EMAIL_USE_TLS = False
+# EMAIL_USE_SSL = False
 # The email address that will show as the sender
 DEFAULT_FROM_EMAIL = 'gripstand@gmail.com'
 

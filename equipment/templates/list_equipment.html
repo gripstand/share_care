@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 {% load bootstrap5 %}
 
 {% block title %}
@@ -20,6 +21,8 @@ Listing Equipment
         <th>Equipment Name</th>
         <th>Equipment Type</th>
         <th>Equipment Value</th>
+        <th>Equipment Status</th>
+        <th>Status Date</th>
         <th colspan="2">Action</th>
     </tr>
     </thead>
@@ -28,6 +31,25 @@ Listing Equipment
     <td>{{eq.eq_name}}</td>
     <td>{{eq.eq_type}}</td>
     <td>{{eq.eq_value}}</td>
+<td>
+    {% with status_code=eq.latest_status_code %}
+        {% if status_code %}
+            {# CORRECT USAGE: Use the simple tag to get the display text #}
+            {% get_status_display status_code %}
+        {% else %}
+            No Status
+        {% endif %}
+    {% endwith %}
+</td>
+    
+    <td>
+        {# ACCESSING STATUS DATE #}
+        {% if eq.latest_status_date %}
+            {{ eq.latest_status_date|date:"Y-m-d" }}
+        {% else %}
+            --
+        {% endif %}
+    </td>
     <td><a href='/equipment/detail_equipment/{{eq.id}}'>View</a></td>
     <td><a href='/equipment/update_equipment/{{eq.id}}'>Edit</a></td>    
 </tr>

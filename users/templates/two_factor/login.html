@@ -7,6 +7,6 @@
     <form action="" method="post">
         {% csrf_token %}
         {% include "two_factor/_wizard_forms.html" %}
-        <button type="submit" class="btn btn-primary">{% trans "Log in" %}</button> <button type="submit" class="btn btn-primary">Forgot Password</button>
+        <button type="submit" class="btn btn-primary">{% trans "Log in" %}</button> <a href="{% url 'password_reset' %}" class="btn btn-info" role="button">Forgot Password</a> 
     </form>
 {% endblock %}

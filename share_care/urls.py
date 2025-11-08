@@ -23,15 +23,15 @@ from users.views import CustomTwoFactorLoginView
 from two_factor.urls import urlpatterns as tf_urls
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('',include(tf_urls)),
     path('client/', include('client.urls')),
     path("accounts/", include("django.contrib.auth.urls")),
-    path("", TemplateView.as_view(template_name="home.html"), name="home"),
     path('users/', include('users.urls')),
     path('equipment/', include('equipment.urls')),
     path('account/login/', CustomTwoFactorLoginView.as_view(), name='login'),
+    path("", TemplateView.as_view(template_name="home.html"), name="home"),
     path('',include(tf_urls)),
-    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('admin/', admin.site.urls),
 ]
 # your_project/urls.py
 

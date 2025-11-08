@@ -2,11 +2,12 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from .models import CustomUser
-from django.views.generic import CreateView,DetailView, ListView, UpdateView, DeleteView
+from django.views.generic import CreateView,DetailView, ListView, UpdateView, DeleteView, TemplateView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import get_object_or_404
+from django.contrib.auth import views as auth_views
+from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth import login, get_user_model
 from .forms import CustomUserForm
 from two_factor.views import LoginView
@@ -83,3 +84,25 @@ class UpdateUser(UpdateView):
 def UserProfile(request,pk):
     user=get_object_or_404(CustomUser, pk=pk)
     return render(request,'user_profile.html',context={'this_user':user})
+
+class CustomPasswordResetDone(TemplateView):
+    template_name = 'registration/password_reset_sent.html'
+
+class CustomPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
+    # Keep your custom success_url here
+    success_url = reverse_lazy('custom_password_complete') 
+
+    def form_valid(self, form):
+        # 1. Update the password (standard Django logic)
+        response = super().form_valid(form)
+        
+        # 2. **CRUCIAL STEP: Log the user in**
+        # The form has the user object attached to it after a valid reset
+        login(self.request, form.user)
+        
+        # 3. Now redirect (Django will check the 2FA redirect logic)
+        return response
+
+class CustomPasswordResetComplete(TemplateView):
+    template_name = 'registration/password_reset_complete.html'
+

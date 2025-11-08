@@ -20,6 +20,11 @@ def index(request):
 
 #### ________________  Client Views --------------
 
+from django.views.generic.edit import CreateView
+from django.urls import reverse_lazy
+from .models import Client
+from .forms import ClientForm, PhoneNumberFormSet # Assuming these are your form and formset
+
 class CreateClient(LoginRequiredMixin, CreateView):
     model = Client
     form_class = ClientForm
@@ -27,24 +32,39 @@ class CreateClient(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('list_clients')
 
     def get_context_data(self, **kwargs):
+        # Call the base class's get_context_data to get the default context
         data = super().get_context_data(**kwargs)
+
+        # Ensure the main form is available if not already
+        # CreateView typically adds 'form' to context, but you can explicitly set it if needed
+        if 'form' not in data:
+            data['form'] = self.get_form() # Get the form instance
+
+        # Add the formset to the context
         if self.request.POST:
             data['formset'] = PhoneNumberFormSet(self.request.POST)
         else:
             data['formset'] = PhoneNumberFormSet()
+        
         return data
 
     def form_valid(self, form):
+        # Get the formset from the context to validate it
         context = self.get_context_data()
         formset = context['formset']
 
+        # If the formset is valid, proceed to save both
         if formset.is_valid():
-            self.object = form.save()
-            formset.instance = self.object
-            formset.save()
-            return super().form_valid(form)
+            self.object = form.save() # Save the main form first
+            formset.instance = self.object # Associate the formset with the saved object
+            formset.save() # Save the formset data
+            return super().form_valid(form) # Redirect to success_url
         else:
-            return self.form_invalid(form)
+            # If the formset is invalid, re-render the form with errors
+            # You might want to pass formset errors back to the template here
+            # For simplicity, this example re-renders the template with errors
+            # Note: You'd need to ensure formset errors are displayed in your template
+            return self.render_to_response(self.get_context_data(form=form, formset=formset))
 
 class ListClients(LoginRequiredMixin, ListView):
     model=Client
@@ -230,19 +250,21 @@ class CreateAction(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('list_clients')
 
     def get_initial(self):
+        initial = super().get_initial()
         # Access the URL parameter 'client_id' from self.kwargs
-        client_id = self.kwargs.get('client_id')
+        #client_id = self.kwargs.get('client_id')
         
         # Look up the actual Client object from the database
-        client_instance = get_object_or_404(Client, pk=client_id)
-        
+        #client_instance = get_object_or_404(Client, pk=client_id)
+        initial['action_user'] = self.request.user
         # This is where you set initial values for the form's fields
-        return {'client': client_instance}
+        #return {'client': client_instance}
+        return initial
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get the context
         context = super().get_context_data(**kwargs)
-        
+        context['current_user'] = self.request.user
         # Add the client instance to the context for template display
         client_id = self.kwargs.get('client_id')
         context['client'] = get_object_or_404(Client, pk=client_id)
@@ -380,7 +402,10 @@ class AddTicketUpdate(LoginRequiredMixin, CreateView):
         data['previous_updates'] = self.ticket_instance.updates_for_ticket.all().order_by('-ticket_update_date')
         return data
 
-
+class TicketDetails(LoginRequiredMixin, DetailView):
+    model=Ticket
+    context_object_name='ticket'
+    template_name='ticket_details.html'
 
 
 #---------------------- Evaluations --------------------------#

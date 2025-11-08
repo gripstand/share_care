@@ -5,6 +5,7 @@ from django.contrib import messages
 from .forms import EquipmentForm, EqStatusForm
 from django.urls import reverse_lazy
 from datetime import date
+from django.db.models import Subquery, OuterRef
 
 
 # Create your views here.
@@ -33,9 +34,50 @@ class CreateEquipment(CreateView):
 
 
 class ListEquipment(ListView):
-    model=Equipment
-    context_object_name='equipment'
-    template_name='list_equipment.html'
+    model = Equipment
+    context_object_name = 'equipment'
+    template_name = 'list_equipment.html'
+
+
+
+    def get_queryset(self):
+            # 1. Subquery to find the PK of the LATEST status record for the equipment
+            # We explicitly use the model's related_name for clarity (though not required here)
+            latest_status_pk_subquery = Subquery(
+                # Start the query directly on the related model
+                EquipmentStatus.objects.filter(
+                    equipment=OuterRef('pk') # Use object reference instead of equipment_id
+                ).order_by('-status_date', '-pk') # Ensure this field belongs to EquipmentStatus
+                .values('pk')[:1] 
+            )
+
+            # 2. Annotate the main queryset with the PK
+            annotated_queryset = super().get_queryset().annotate(
+                latest_status_pk_annotated=latest_status_pk_subquery
+            )
+            
+            # 3. Subquery to pull the status code
+            latest_status_code = Subquery(
+                EquipmentStatus.objects.filter(
+                    pk=OuterRef('latest_status_pk_annotated')
+                ).values('status')[:1]
+            )
+            
+            # 4. Subquery to pull the status date
+            latest_status_date = Subquery(
+                EquipmentStatus.objects.filter(
+                    pk=OuterRef('latest_status_pk_annotated')
+                ).values('status_date')[:1] # Ensure 'status_date' is spelled correctly
+            )
+
+            # 5. Final Annotation and Return
+            # Ensure all fields are correctly named here
+            return annotated_queryset.annotate(
+                latest_status_code=latest_status_code,
+                latest_status_date=latest_status_date 
+            ).order_by('eq_name')
+
+
 
 class UpdateEquipment(UpdateView):
     model=Equipment

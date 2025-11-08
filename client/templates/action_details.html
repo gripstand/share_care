@@ -23,7 +23,7 @@ Record the followng Action performed on behalf of: {{action.client}}
     <ul>
         {% for ticket in action_tickets %}
             <li>
-                Ticket ID: {{ ticket.id }} - Created on: {{ ticket.ticket_create_date }} - Status: {% if ticket.ticket_open %} Open {% else %} Closed {% endif %} - <a href="/client/ticket/{{ticket.id}}">Details</a>
+                Ticket ID: {{ ticket.id }} - Created on: {{ ticket.ticket_create_date }} - Status: {% if ticket.ticket_open %} Open {% else %} Closed {% endif %} - <a href="/client/ticket_detail/{{ticket.id}}">Details</a>
             </li>
         {% endfor %}
     </ul>

@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block title %}
-    Create Action for {{client}}
+    Create Action for {{client}} BY {{current_user}}
 {% endblock %}
 
 {% block content %}
@@ -25,7 +25,42 @@
     <button type="submit" class="btn btn-primary">Save Goal</button>
 </form>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get references to the elements
+    const followUpPeriodSelect = document.getElementById('id_action_follow_up_period');
+    const actionOutcomeRadios = document.querySelectorAll('input[name="action_outcome"]');
+    const followUpPeriodLabel = document.querySelector('label[for="id_action_follow_up_period"]');
 
+    // Function to toggle the visibility of the follow-up period
+    function toggleFollowUpPeriodVisibility() {
+        let requiresFollowUpSelected = false;
+        // Check if any of the 'action_outcome' radio buttons are checked
+        actionOutcomeRadios.forEach(radio => {
+            if (radio.checked && radio.value === "Requires Follow-Up") {
+                requiresFollowUpSelected = true;
+            }
+        });
+
+        // Show or hide the follow-up period select element
+        if (requiresFollowUpSelected) {
+            followUpPeriodSelect.style.display = 'block'; // Or 'flex', 'inline-block' as appropriate for your CSS
+            followUpPeriodLabel.style.display = 'block';
+        } else {
+            followUpPeriodSelect.style.display = 'none';
+            followUpPeriodLabel.style.display = 'none';
+        }
+    }
+
+    // Add event listeners to all radio buttons with the name 'action_outcome'
+    actionOutcomeRadios.forEach(radio => {
+        radio.addEventListener('change', toggleFollowUpPeriodVisibility);
+    });
+
+    // Initial check on page load
+    toggleFollowUpPeriodVisibility();
+});
+</script>
 
 <!--
  <script>

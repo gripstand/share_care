@@ -21,7 +21,7 @@
 <form method="post">
     {% csrf_token %}
     <h3>Contact Details</h3>
-    {% bootstrap_form client_form layout=inline %}
+      {% bootstrap_form form layout=inline %} 
     <h3>Additional Contacts</h3>
 {{ formset.management_form }}
 <div id="form-container">

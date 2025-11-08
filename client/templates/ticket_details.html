@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% load bootstrap5 %}
+
+{% block title %}
+Ticket For: {{ ticket.client }}
+{% endblock %}
+
+{% block content %}
+
+Ticket Short Name: {{ ticket.ticket_slug }}<br>
+Ticket Created On: {{ ticket.ticket_create_date }}<br>
+Ticket Created By: {{ ticket.ticket_created_by }}<br>
+Ticket Issue: {{ ticket.ticket_issue }}<br>
+Ticket Status: {% if ticket.ticket_open %} Open {% else %} Closed {% endif %}<br>
+{% if not ticket.ticket_open %}
+Ticket Resolved Date: {{ ticket.ticket_resolved_date }}<br>
+{% endif %}
+Ticket Associated Action: <a href="/client/action_detail/{{ticket.action.id}}">Action ID: {{ticket.action.id}}</a><br>
+<br>
+
+<h3>Previous Updates for this Ticket</h3>
+{% if previous_updates %}
+    <ul>
+        {% for update in previous_updates %}
+            <li>
+                Update Date: {{ update.ticket_update_date }} - Updated By: {{ update.ticket_update_by }}<br>
+                Update Notes: {{ update.ticket_update_notes }}<br><br>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No updates recorded for this ticket.</p>
+{% endif %}
+
+<a href="/client/update_ticket/{{ticket.id}}" class="btn btn-info" role="button">Add Ticket Update</a> 
+
+{% if ticket.ticket_open %}
+<a href="/client/close_ticket/{{ticket.id}}" class="btn btn-danger" role="button">Close Ticket</a> 
+{% else %}
+<a href="#" class="btn btn-danger disabled" tabindex="-1" aria-disabled="true" role="button">Close Ticket</a> 
+{% endif %} 
+
+{% endblock %}
+
+
+
+<!-- class Ticket(models.Model):
+    ticket_slug=models.CharField(max_length=30, verbose_name="Ticket Short Name")
+    ticket_create_date=models.DateField(default=timezone.now)
+    ticket_created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,  # Use settings.AUTH_USER_MODEL for consistency
+        on_delete=models.CASCADE,
+        related_name='tickets_created_by_user',
+        verbose_name="Ticket created by"
+    )
+    ticket_issue=models.TextField(verbose_name="Issue Description")
+    ticket_status=models.CharField(choices=TicketStatusTypes.choices, max_length=30, default='ACTIVE', verbose_name="Ticket Status")
+    ticket_resolved_date=models.DateField(null=True, blank=True, verbose_name="Resolved Date")
+    ticket_open=models.BooleanField(default=True)
+    action=models.ForeignKey(Actions, on_delete=models.CASCADE, related_name='ticket_for_action')
+
+    def __str__(self):
+        return self.ticket_slug -->

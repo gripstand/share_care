@@ -62,18 +62,23 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    # ... Standard Django Middlewares (Security, Sessions, Common, CSRF) ...   
+    'django.contrib.auth.middleware.AuthenticationMiddleware', 
+    # 1. django-otp Core: MUST come right after AuthenticationMiddleware
+    'django_otp.middleware.OTPMiddleware', 
+    # 2. 2FA Setup Interceptor: This is the critical middleware missing from your list
+    'two_factor.middleware.threadlocals.ThreadLocals',
+    # 3. Everything else (including your thread-local user middleware) follows
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django_currentuser.middleware.ThreadLocalUserMiddleware',
+    # ... rest of your middlewares ...
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django_otp.middleware.OTPMiddleware',
-    'django_currentuser.middleware.ThreadLocalUserMiddleware',
 ]
+
 
 ROOT_URLCONF = 'share_care.urls'
 

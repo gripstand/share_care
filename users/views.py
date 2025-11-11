@@ -1,32 +1,82 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from .models import CustomUser
 from django.views.generic import CreateView,DetailView, ListView, UpdateView, DeleteView, TemplateView
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth import views as auth_views, authenticate  
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth import login, get_user_model
 from .forms import CustomUserForm
 from two_factor.views import LoginView
+from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
+from django.urls import reverse  # <-- NEW IMPORT
 
 
-# Create your views here.
+def is_admin_group(user):
+    """Check if the user belongs to the 'admin' group."""
+    return user.groups.filter(name='admin').exists()
 
-# class CustomUserCreateView(CreateView):
-#     model = CustomUser
-#     form_class = UserCreationForm# This should be your ModelForm
-#     template_name = 'user_form.html'
-#     success_url = '/success/'
 
+# class CustomTwoFactorLoginView(LoginView):
+#     template_name = 'two_factor/login.html'
+
+User = get_user_model()
 
 class CustomTwoFactorLoginView(LoginView):
     template_name = 'two_factor/login.html'
+    
+    def form_valid(self, form):
+        username = form.cleaned_data.get('username')
+        password = form.cleaned_data.get('password')
+        
+        # 1. Attempt to manually retrieve the user object
+        try:
+            user_to_check = User.objects.get(username=username)
+            
+            # 2. CHECK 1: If the user is INACTIVE, display a specific error.
+            if not user_to_check.is_active:
+                messages.error(
+                    self.request, 
+                    "Your account is currently inactive. Please contact support."
+                )
+                return self.form_invalid(form)
+            
+            # 3. CHECK 2: If the user IS active, manually check the password.
+            #    We use check_password() instead of authenticate() to avoid the ambiguity.
+            if user_to_check.check_password(password):
+                # Password is correct. Proceed with the two-factor flow.
+                
+                # NOTE: We must manually set the user on the form or request for 
+                # the two_factor LoginView to pick it up, or call its own methods.
+                
+                # The cleanest way is to use the user_cache property expected by LoginView:
+                form.user_cache = user_to_check
+                return super().form_valid(form)
+            
+            # 4. If password check fails (and user is active), continue to generic error.
+
+        except ObjectDoesNotExist:
+            # User doesn't exist. Continue to generic error for security.
+            pass
+            
+        # 5. Fallback: If any check failed (password incorrect or user non-existent), 
+        #    return the generic error.
+        return self.form_invalid(form)
+        
+    def form_invalid(self, form):
+        # If we have a custom message (for inactive user), render that without 
+        # the generic form error that would show below it.
+        if messages.get_messages(self.request):
+            return self.render_to_response(self.get_context_data(form=form))
+        
+        # Otherwise, display the standard generic error message.
+        return super().form_invalid(form)
 
 
-@login_required
+#@login_required
+@user_passes_test(is_admin_group, login_url='/forbidden/', redirect_field_name=None)
 def CreateUser(request):
     if request.method == 'POST':
         form = CustomUserForm(request.POST)
@@ -57,17 +107,31 @@ class AllUsers(LoginRequiredMixin,ListView):
         print (User.objects.count())
         return User.objects.all()
     
-class UpdateUser(UpdateView):
+class UpdateUser(UserPassesTestMixin, UpdateView):
     model=User
     context_object_name='users'
     template_name='UserForm'
     form_class=CustomUserForm
     success_url = reverse_lazy('list_users')
-    
+    login_url = reverse_lazy('login')
+    raise_exception = False  # Redirects to login_url instead of raising 403
+    def test_func(self):
+        # Access the user object via self.request.user
+        user = self.request.user
+        # Check for membership in the 'admin' group
+        return user.groups.filter(name='admin').exists()
+    def handle_no_permission(self):
+        """Redirects logged-in users who fail the test to the forbidden page."""
+        # Check if the user is authenticated; if so, send them to the forbidden page
+        if self.request.user.is_authenticated:
+            return redirect('/forbidden/') 
+        
+        # If the user is NOT authenticated, the default mixin behavior takes over,
+        # redirecting them to the login_url.
+        return super().handle_no_permission()
     def form_valid(self, form):
         # 1. Call the parent clean method to ensure all other validation runs
         # cleaned_data = super().clean()
-
         # 2. Get the values from the form's cleaned data
         email = form.cleaned_data.get('email')
         username = form.cleaned_data.get('username')
@@ -89,18 +153,25 @@ class CustomPasswordResetDone(TemplateView):
     template_name = 'registration/password_reset_sent.html'
 
 class CustomPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
-    # Keep your custom success_url here
-    success_url = reverse_lazy('custom_password_complete') 
+    # REMOVE: success_url = reverse_lazy('custom_password_complete')
+    template_name = 'registration/password_confirm_form.html'
+
+    def get_success_url(self):
+        # The 2FA package often uses the LOGIN_REDIRECT_URL to determine 
+        # where the user lands after a successful login/setup.
+        from django.conf import settings
+        return reverse(settings.LOGIN_REDIRECT_URL) 
 
     def form_valid(self, form):
-        # 1. Update the password (standard Django logic)
+        # 1. Standard Django logic: updates password, prepares success redirect to get_success_url()
         response = super().form_valid(form)
         
-        # 2. **CRUCIAL STEP: Log the user in**
-        # The form has the user object attached to it after a valid reset
+        # 2. Log the user in *after* the password update
         login(self.request, form.user)
         
-        # 3. Now redirect (Django will check the 2FA redirect logic)
+        # 3. Return the response, which now points to a URL that the 2FA middleware
+        # is checking (LOGIN_REDIRECT_URL), allowing the middleware to intercept
+        # the request and force the redirect to /setup/.
         return response
 
 class CustomPasswordResetComplete(TemplateView):

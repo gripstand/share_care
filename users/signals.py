@@ -16,7 +16,7 @@ def send_initial_password_setup_email(sender, instance, created, **kwargs):
     print("Signal `post_save` for User model received.")
     print(f"User instance created: {created}")
     print(f"User has a usable password: {instance.has_usable_password()}")
-    if created and not instance.has_usable_password():
+    if created and not instance.has_usable_password() and instance.access_to_system:
         print("Conditions met: User created without a password. Attempting to send email.")
         # The user was just created and has no password set.
         # We'll use Django's built-in token generator to create the reset link

@@ -9,8 +9,8 @@ class CustomUser(AbstractUser):
     username = models.CharField(max_length=100, null=True, blank=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
-    access_to_system=models.BooleanField('Access to System', default=False)
-    admin_account=models.BooleanField('Adminstrative Account', default=False)
+    access_to_system=models.BooleanField('Access to System', default=True)
+
     # ACCOUNT_USERNAME_REQUIRED = False
 
     def __str__(self):

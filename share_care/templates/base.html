@@ -61,8 +61,13 @@
         <h1>{% block title %}(no title){% endblock %}</h1>
 
         {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
-
         {% block content %}(no content){% endblock %}
     </div>
-
+<footer class="mt-auto py-3 bg-light border-top">
+        <div class="container d-flex justify-content-between">
+            <span class="text-muted">© {% now "Y" %} Your Company.</span>
+            <p class="float-center"><a href="/admin">Admin</a></p>
+            <p class="float-end"><a href="">Back to top</a></p>
+        </div>
+    </footer>
 {% endblock %}

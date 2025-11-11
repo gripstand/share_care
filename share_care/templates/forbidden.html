@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load bootstrap5 %}
+
+{% block title %}Sorry!{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+Hi {{ user.username }}!
+<p>
+You do not have permission to access this page.
+</p>
+{% else %}
+<p>This website is only available to authorized staff and volunteers of the SHARE foundation.  If you are authorized, and are having issues logging in, please contact SHARE</p>
+<a href="{% url 'two_factor:login' %}" class="btn btn-info" role="button">Log Into the System</a>
+{% endif %}
+{% endblock %}

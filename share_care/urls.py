@@ -17,22 +17,30 @@ Including another URLconf
 from django.contrib import admin
 from django.views.generic.base import TemplateView
 from django.urls import path, include
-from django.views.generic import RedirectView
-from django.contrib.auth import views as auth_views
 from users.views import CustomTwoFactorLoginView
-from two_factor.urls import urlpatterns as tf_urls
+from django.contrib.auth import views as auth_views
+# NOTE: Removed the 'from two_factor.urls import urlpatterns as tf_urls' import
 
 urlpatterns = [
-    path('',include(tf_urls)),
+    # 1. Include your custom user/auth paths FIRST.
+    #    Your users.urls should define all 4 password reset steps and the login view.
+    path('users/', include('users.urls')), 
+
+    # 2. Add specific login path (optional, if you want it outside of users.urls)
+   
+    
+    # 3. Remove these conflicting lines:
+    # path('',include(tf_urls)), 
+    # path("accounts/", include("django.contrib.auth.urls")), 
+    # path('',include(tf_urls)), 
+
+    # 4. Keep other paths
+    path('account/logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('client/', include('client.urls')),
-    path("accounts/", include("django.contrib.auth.urls")),
-    path('users/', include('users.urls')),
     path('equipment/', include('equipment.urls')),
-    path('account/login/', CustomTwoFactorLoginView.as_view(), name='login'),
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
-    path('',include(tf_urls)),
-    path('admin/', admin.site.urls),
+    path('forbidden/', TemplateView.as_view(template_name="forbidden.html"), name="forbidden"),
+    path('admin/', admin.site.urls, name="admin"),
 ]
-# your_project/urls.py
 
 

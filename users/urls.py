@@ -4,7 +4,7 @@ from . import views
 from .views import AllUsers, CustomTwoFactorLoginView, CustomPasswordResetComplete, CustomPasswordResetDone, CustomPasswordResetConfirmView
 from users.views import CustomTwoFactorLoginView
 from django.contrib.auth import views as auth_views
-from two_factor.urls import urlpatterns as tf_urls
+
 
 urlpatterns = [
     path('create_user/', views.CreateUser, name='user_form'),
@@ -24,19 +24,8 @@ urlpatterns = [
     #Informs the user that an email has been sent.
     path('password_reset/done/', CustomPasswordResetDone.as_view(),name='password_reset_done'),
    # Renders the form for the user to enter their new password.
-    path(
-        'reset/<uidb64>/<token>/', 
-        CustomPasswordResetConfirmView.as_view(
-            #template_name='registration/password_confirm_form.html',
-            # success_url is defined in the view above, but kept here for clarity:
-            success_url=reverse_lazy('custom_password_complete') 
-        ), 
-        name='password_reset_confirm'
-        ),
-    # Shows the final confirmation that the password has been changed.
-    path('password_reset/complete/', auth_views.PasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'),name='custom_password_complete'),
-    path('', include(tf_urls)),
-    #path('account/login/', CustomTwoFactorLoginView.as_view(), name='login'),
-    #path('', include('django.contrib.auth.urls')),
-
+    path('reset/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', CustomPasswordResetComplete.as_view(), name='password_reset_complete'),    
+    
+    
 ]

@@ -4,14 +4,17 @@ from .models import CustomUser
 from django.views.generic import CreateView,DetailView, ListView, UpdateView, DeleteView, TemplateView
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from two_factor.views.mixins import OTPRequiredMixin
 from django.contrib.auth import views as auth_views, authenticate  
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth import login, get_user_model
 from .forms import CustomUserForm
-from two_factor.views import LoginView
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse  # <-- NEW IMPORT
+from django.conf import settings
+from two_factor.views import LoginView
+
 
 
 def is_admin_group(user):
@@ -98,7 +101,7 @@ def CreateUser(request):
 
 User = get_user_model()
 
-class AllUsers(LoginRequiredMixin,ListView):
+class AllUsers(OTPRequiredMixin, LoginRequiredMixin,ListView):
     model=User
     template_name='list_users.html'
     context_object_name='users'
@@ -152,27 +155,37 @@ def UserProfile(request,pk):
 class CustomPasswordResetDone(TemplateView):
     template_name = 'registration/password_reset_sent.html'
 
+# class CustomPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
+#     template_name = 'registration/password_confirm_form.html'
+
+#     def get_success_url(self):
+#         # Return a safe fallback URL, as the redirect will be manual
+#         return reverse(settings.LOGIN_REDIRECT_URL) 
+
+#     def form_valid(self, form):
+#         # 1. Update the password
+#         response = super().form_valid(form)
+#         user = form.user
+        
+#         # 2. Log the user in
+#         login(self.request, user)
+        
+#         # 3. CRITICAL MANUAL CHECK: Check if the user has a registered 2FA device
+#         device = default_device(user)
+        
+#         if not device:
+#             # If no device is found (new user), redirect to the package's setup URL
+#             return redirect(reverse('two_factor:setup'))
+        
+#         else:
+#             # If a device IS found (existing user), proceed to the standard success page.
+#             # (Note: Existing users will still be required to provide a token 
+#             # if they log in via the regular login flow, but after password reset, 
+#             # this redirects them to the final destination.)
+#             return redirect(settings.LOGIN_REDIRECT_URL)
+
 class CustomPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
-    # REMOVE: success_url = reverse_lazy('custom_password_complete')
     template_name = 'registration/password_confirm_form.html'
-
-    def get_success_url(self):
-        # The 2FA package often uses the LOGIN_REDIRECT_URL to determine 
-        # where the user lands after a successful login/setup.
-        from django.conf import settings
-        return reverse(settings.LOGIN_REDIRECT_URL) 
-
-    def form_valid(self, form):
-        # 1. Standard Django logic: updates password, prepares success redirect to get_success_url()
-        response = super().form_valid(form)
-        
-        # 2. Log the user in *after* the password update
-        login(self.request, form.user)
-        
-        # 3. Return the response, which now points to a URL that the 2FA middleware
-        # is checking (LOGIN_REDIRECT_URL), allowing the middleware to intercept
-        # the request and force the redirect to /setup/.
-        return response
 
 class CustomPasswordResetComplete(TemplateView):
     template_name = 'registration/password_reset_complete.html'

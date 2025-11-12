@@ -19,7 +19,7 @@ from django.views.generic.base import TemplateView
 from django.urls import path, include
 from users.views import CustomTwoFactorLoginView
 from django.contrib.auth import views as auth_views
-# NOTE: Removed the 'from two_factor.urls import urlpatterns as tf_urls' import
+from two_factor.urls import urlpatterns as tf_urls
 
 urlpatterns = [
     # 1. Include your custom user/auth paths FIRST.
@@ -40,6 +40,7 @@ urlpatterns = [
     path('equipment/', include('equipment.urls')),
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
     path('forbidden/', TemplateView.as_view(template_name="forbidden.html"), name="forbidden"),
+    path('',include(tf_urls)), 
     path('admin/', admin.site.urls, name="admin"),
 ]
 

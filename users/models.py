@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import UserManager
 # Create your models here.
 
 class CustomUser(AbstractUser):
@@ -15,3 +16,4 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.first_name + ' ' + self.last_name
+    

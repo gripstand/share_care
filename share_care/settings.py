@@ -62,18 +62,18 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    # ... Standard Django Middlewares (Security, Sessions, Common, CSRF) ...   
+    # ... Standard Django Middlewares (Security, Sessions, Common, CSRF) ... 
+    'django.contrib.sessions.middleware.SessionMiddleware',  
     'django.contrib.auth.middleware.AuthenticationMiddleware', 
     # 1. django-otp Core: MUST come right after AuthenticationMiddleware
     'django_otp.middleware.OTPMiddleware', 
     # 2. 2FA Setup Interceptor: This is the critical middleware missing from your list
-    'two_factor.middleware.threadlocals.ThreadLocals',
+    #'two_factor.middleware.threadlocals.ThreadLocals',
     # 3. Everything else (including your thread-local user middleware) follows
     'django.contrib.messages.middleware.MessageMiddleware',
     'django_currentuser.middleware.ThreadLocalUserMiddleware',
     # ... rest of your middlewares ...
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -163,8 +163,8 @@ AUTH_USER_MODEL = 'users.CustomUser'
 
 LOGIN_URL = 'two_factor:login'
 LOGIN_REDIRECT_URL = 'home'
-#LOGIN_REDIRECT_URL = 'two_factor:profile'
-LOGOUT_REDIRECT_URL = 'two_factor:login'
+LOGIN_REDIRECT_URL = 'two_factor:profile'
+#LOGOUT_REDIRECT_URL = 'two_factor:login'
 
 TWO_FACTOR_PATCH_ADMIN = True
 TWO_FACTOR_STRIC = True

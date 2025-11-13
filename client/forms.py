@@ -72,6 +72,13 @@ PhoneNumberFormSetUpdate = inlineformset_factory(
 
 class GoalForm(forms.ModelForm):
     goal_time_spent = TimeSumField(label="time spent")
+    goal_name = forms.CharField(
+        label="Goal Name",
+        max_length=150,
+        # Define a custom dictionary for all error types
+        error_messages={
+            'required': 'A name for the goal is required.'
+        })
     class Meta:
         model=Goal
         widgets= {
@@ -79,12 +86,22 @@ class GoalForm(forms.ModelForm):
                 'goal_target_date':DatePickerInput(),
                 'client': forms.HiddenInput(),
                 'goal_status': forms.RadioSelect,
-                #'goal_time_spent': TimeTrackWidget(),
-                #'goal_time_spent': TimeSumField()
+
         }
         
-        #fields = ['goal_date', 'goal_target_date', 'client', 'goal_status', 'goal_time_spent']
         fields='__all__'
+        error_messages = {
+            'goal_date': {
+                'required': "A date for when this goal was set is required."
+            },
+            'goal_target_date': {
+                'required': "A target completion date is required."
+            },
+            'goal_status': {
+                'required': "Please set a status for the goal."
+            }
+        }
+
 
 
 class GoalUpdateForm(forms.ModelForm):
@@ -96,6 +113,20 @@ class GoalUpdateForm(forms.ModelForm):
                 'goal': forms.HiddenInput(),
         }
         fields='__all__'
+        error_messages = {
+            'goal_date': {
+                'required': "A date for when this goal was set is required."
+            },
+            'goal_target_date': {
+                'required': "A target completion date is required."
+            },
+            'goal_status': {
+                'required': "Please set a status for the goal."
+            },
+            'g_status_staff_time': {
+                'required': "Please enter the staff time spent on this update."
+            }
+        }
 
     
     def __init__(self, *args, **kwargs):
@@ -108,7 +139,6 @@ class GoalUpdateForm(forms.ModelForm):
         if hide_progress_field:
             self.fields.pop('g_status_progress_level')
 
-# print(f"forms.py: PhoneNumberFormSetUpdate is of type {type(PhoneNumberFormSetUpdate)}")
 
 
 class ActionForm(forms.ModelForm):
@@ -228,3 +258,26 @@ class EvalForm(forms.ModelForm):
                 'eval_core_challenge': forms.RadioSelect
         }
         fields='__all__'
+        error_messages = {
+            'eval_user': {
+                'required': "Please select the staff member completing this evaluation."
+            },
+            'eval_date': {
+                'required': "A date for when this evaluation occured is required."
+            },
+            'eval_time': {
+                'required': "Please enter the time spent on this evaluation."
+            },
+            'eval_core_challenge': {
+                'required': "Please select a core challenge from the list."
+            },
+            'eval_communication': {
+                'required': "Please select a communication capability from the list."
+            },
+            'eval_mobility': {
+                'required': "Please select a mobility type from the list."
+            },
+            'eval_notes': {
+                'required': "Please enter notes for this evaluation."
+            }
+        }

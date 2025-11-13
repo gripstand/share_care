@@ -1,13 +1,24 @@
 {% extends 'base.html' %}
-{% load bootstrap5 %}
+{% load django_bootstrap5 %}
 {% load static %}
 
 {% block title %}
-    Create Goal
+    {%if form.instance.pk %}
+        Edit Goal for {{client}}
+    {% else %}
+        New Goal for {{client}}
+    {% endif %}
 {% endblock %}
 
 {% block content %}
-{{ form.media }}
+
+{% bootstrap_messages %}
+{% if form.instance.pk %}
+    <h1>Edit Goal for {{client}}</h1>
+{% else %}
+    <h1>New Goal for {{client}}</h1>
+{% endif %}
+
 {% if form.non_field_errors %}
 <div class="alert alert-danger" role="alert">
     {% for error in form.non_field_errors %}
@@ -15,11 +26,10 @@
     {% endfor %}
 </div>
 {% endif %}
-<form method="post">
+<form method="post" novalidate>
     {% csrf_token %}
     {{form.client}}
-
-    
+    {% bootstrap_form_errors form layout='inline' %}
     {% bootstrap_form form layout=inline %}
   
     <button type="submit" class="btn btn-primary">Save Goal</button>

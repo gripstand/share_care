@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'users',
     'client',
     'equipment',
-    'bootstrap5',
+    'django_bootstrap5',
     'localflavor',
     #'django_forms_bootstrap',
     #'client.apps.ClientConfig',

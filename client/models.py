@@ -133,13 +133,13 @@ class AddContacts(models.Model):
 #------------------------------- Models for Evaluations
 
 class Eval(models.Model):
-    eval_date=models.DateField()
-    eval_user=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='evals_by_user',verbose_name="Complete by")
-    eval_time=models.IntegerField()
+    eval_date=models.DateField(verbose_name="Date of Evaluation", default=timezone.now)
+    eval_user=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='evals_by_user',verbose_name="Complete By")
+    eval_time=models.IntegerField(verbose_name="Time Spent (in minutes)")
     eval_core_challenge=models.ForeignKey(CoreChallengeList, on_delete=models.CASCADE, related_name='eval_core_challenge', verbose_name="Core Challenge")
     eval_communication=models.ForeignKey(CommunicationsList, on_delete=models.CASCADE, related_name='eval_comm', verbose_name="Communication Capability")
-    eval_mobility=models.CharField(max_length=50,choices=MobilityTypes.choices,blank=False,default='NORM')
-    eval_notes=models.TextField()
+    eval_mobility=models.CharField(max_length=50,choices=MobilityTypes.choices,blank=False,default='NORM',verbose_name="Client Mobility")
+    eval_notes=models.TextField(verbose_name="Evaluation Notes")
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='evals_for_client')
     
     def __str__(self):
@@ -155,7 +155,7 @@ class Goal(models.Model):
     goal_name=models.CharField(max_length=30)
     goal_type=models.CharField(max_length=25,choices=GoalTypes.choices,blank=False,default='MEASHURE')
     goal_tack_type=models.CharField(max_length=25,choices=GoalTrackTypes.choices,blank=False,default='YN')
-    goal_time_spent=models.IntegerField()
+    goal_time_spent=models.IntegerField(verbose_name="Staff Time Spent (in minutes)")
     goal_status=models.CharField(max_length=25,choices=GoalStatusTypes.choices,blank=False,default='OPEN')
     goal_target_date=models.DateField()
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='goals')
@@ -165,12 +165,12 @@ class Goal(models.Model):
 
 
 class GoalUpdate(models.Model):
-    g_update_date=models.DateField()
-    g_status_update=models.CharField(max_length=30,choices=GoalUpdateStatusTypes.choices, default='EVAL')
-    g_status_staff_time=models.IntegerField()
+    g_update_date=models.DateField(verbose_name="Date of Update", default=timezone.now)
+    g_status_update=models.CharField(max_length=30,choices=GoalUpdateStatusTypes.choices, default='EVAL',verbose_name="Goal Status Update")
+    g_status_staff_time=models.IntegerField(verbose_name="Staff Time Spent (in minutes)")
     g_status_progress_level = models.IntegerField(choices=Progress.choices,null=True,blank=True)
     goal=models.ForeignKey(Goal,on_delete=models.CASCADE, related_name='g_status_record')
-    g_status_notes=models.TextField(null=True, blank=True)
+    g_status_notes=models.TextField(null=True, blank=True,verbose_name="Notes about this update")
 
 
 #-------------------------------- Models for Actions

@@ -71,7 +71,7 @@ PhoneNumberFormSetUpdate = inlineformset_factory(
 
 
 class GoalForm(forms.ModelForm):
-    goal_time_spent = TimeSumField(label="time spent")
+    #goal_time_spent = TimeSumField(label="time spent")
     goal_name = forms.CharField(
         label="Goal Name",
         max_length=150,
@@ -105,7 +105,7 @@ class GoalForm(forms.ModelForm):
 
 
 class GoalUpdateForm(forms.ModelForm):
-    goal_time_spent = TimeSumField(label="time spent")
+    #goal_time_spent = TimeSumField(label="time spent")
     class Meta:
         model=GoalUpdate
         widgets= {
@@ -151,6 +151,18 @@ class ActionForm(forms.ModelForm):
                 'action_outcome': forms.RadioSelect,
         }
         fields='__all__'
+        error_messages = {
+            'action_date': {
+                'required': "A date for when this action item was created is required."
+            },
+            'action_notes': {
+                'required': "Please enter notes for this action item."
+            },
+            'action_reason_code': {
+                'required': "Please select a reason code from the list."
+            }
+        }
+
 
 
     def __init__(self, *args, **kwargs):
@@ -234,6 +246,14 @@ class TicketUpdateForm(forms.ModelForm):
             'ticket_update_by': forms.HiddenInput(),
         }
         fields = '__all__'
+        error_messages = {
+            'ticket_update_notes': {
+                'required': "Please enter notes for this ticket update."
+            },
+            'ticket_assign_to': {
+                'required': "Please select a staff member to assign this ticket update to."
+            }
+        }
 
 
 TicketUpdateFormSet = inlineformset_factory(

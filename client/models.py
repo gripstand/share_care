@@ -229,7 +229,7 @@ class TicketUpdate(models.Model):
         related_name='ticket_assigned_to_user',
         verbose_name="Assign to"
     )
-    ticket_update_notes=models.TextField(blank=True, null=True)
+    ticket_update_notes=models.TextField(verbose_name="Ticket Update Notes")
 
     def __str__(self):
         return f"Update on {self.ticket_update_date} by {self.ticket_update_by}"

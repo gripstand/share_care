@@ -2,11 +2,26 @@
 {% load django_bootstrap5 %}
 {% load static %}
 
+
 {% block title %}
-    Update Goal: {{goal}}
+    {%if form.instance.pk %}
+        Edit an Update for {{goal}}
+    {% else %}
+       Add New Update for {{goal}}
+    {% endif %}
 {% endblock %}
 
+
 {% block content %}
+
+{%if form.instance.pk %}
+    <h1>Edit an Update for {{goal}}</h1>
+{% else %}
+    <h1>Add New Update for {{goal}}</h1>
+{% endif %}
+
+
+
 {% if form.non_field_errors %}
 <div class="alert alert-danger" role="alert">
     {% for error in form.non_field_errors %}

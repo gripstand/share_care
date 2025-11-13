@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load bootstrap5 %}
+{% load django_bootstrap5 %}
 {% load static %}
 
 {% block title %}
@@ -9,6 +9,7 @@ Update Ticket: {{ticket}}
 {% endblock %}
 
 {% block content %}
+<h1>Update Ticket: {{ticket}}</h1>
 <strong>Ticket Short Name:</strong> {{ticket.ticket_slug}}<br>
 <strong>Ticket status:</strong> {{ticket.ticket_status}}<br>
 <strong>Ticket Open:</strong> {% if ticket.ticket_open %} Yes {% else %} No {% endif %}<br>
@@ -31,7 +32,6 @@ Update Ticket: {{ticket}}
 </p>
 
 
-
 {% if form.non_field_errors %}
 <div class="alert alert-danger" role="alert">
     {% for error in client_form.non_field_errors %}
@@ -39,9 +39,10 @@ Update Ticket: {{ticket}}
     {% endfor %}
 </div>
 {% endif %}
-<form method="post">
+<form method="post" novalidate>
     {% csrf_token %}
     {{form.ticket_update_by}}
+    {% bootstrap_form_errors form layout='inline' %}
     {% bootstrap_form form layout=inline %}
     <button type="submit" class="btn btn-primary">Save Update</button>
 </form>

@@ -3,26 +3,33 @@
 {% load static %}
 
 {% block title %}
-    Create Action for {{client}} BY {{current_user}}
+    {% if form.instance.pk %}
+        Edit Action Item for {{client}}
+    {% else %}
+        New Action Item for {{client}}
+    {% endif %}
 {% endblock %}
 
-{% block content %}
-{% if form.non_field_errors %}
 
+{% block content %}
+    {% if form.instance.pk %}
+        <h1>Edit Action Item for {{client}}</h1>
+    {% else %}
+        <h1>New Action Item for {{client}}</h1>
+    {% endif %}
+{% if form.non_field_errors %}
 <div class="alert alert-danger" role="alert">
     {% for error in form.non_field_errors %}
         {{ error }}
     {% endfor %}
 </div>
 {% endif %}
-<form method="post">
+<form method="post" novalidate>
     {% csrf_token %}
- 
     {{form.client}}
+    {% bootstrap_form_errors form layout='inline' %}
     {% bootstrap_form form layout=inline %}
-
-  
-    <button type="submit" class="btn btn-primary">Save Goal</button>
+    <button type="submit" class="btn btn-primary">Save Action Item</button>
 </form>
 
 <script>

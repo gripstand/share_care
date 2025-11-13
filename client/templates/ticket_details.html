@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
-{% load bootstrap5 %}
+{% load django_bootstrap5 %}
 
 {% block title %}
 Ticket For: {{ ticket.client }}
 {% endblock %}
 
 {% block content %}
-
+<h1>Ticket Details for {{ ticket.client }}</h1>
 Ticket Short Name: {{ ticket.ticket_slug }}<br>
 Ticket Created On: {{ ticket.ticket_create_date }}<br>
 Ticket Created By: {{ ticket.ticket_created_by }}<br>

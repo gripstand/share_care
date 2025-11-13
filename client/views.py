@@ -207,6 +207,44 @@ class CreateGoal(LoginRequiredMixin, CreateView):
         context['client'] = get_object_or_404(Client, pk=client_id)
         
         return context
+    
+
+class UpdateGoalView(LoginRequiredMixin, UpdateView):
+    model = Goal
+    form_class = GoalForm
+    template_name = 'create_goal.html'  # Reusing the creation template (common practice)
+    
+    # 1. The success_url needs to point to where the user should go after updating the Goal.
+    #    You often want to go back to the specific client's detail page or a goal list.
+    #    We'll assume 'list_clients' for now, but you might want to adjust this.
+    success_url = reverse_lazy('list_clients')
+
+    # 2. UpdateView automatically looks for the Goal's primary key (pk) in the URL.
+    #    If your URL uses 'goal_id' instead of 'pk', uncomment the line below:
+    # pk_url_kwarg = 'goal_id' 
+    
+    # We do NOT need get_initial() in UpdateView, as it automatically loads the Goal object's data.
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get the context
+        context = super().get_context_data(**kwargs)
+        
+        # The Goal object being updated is available via self.object
+        goal_instance = self.object
+        
+        # The related Client object is available via the Goal instance's foreign key
+        context['client'] = goal_instance.client
+        
+        # Often useful to indicate if this is an update vs. a create
+        context['is_update'] = True
+        
+        return context
+
+    # If you need custom success logic (like redirecting to the updated goal's detail page),
+    # you can override get_success_url:
+    # def get_success_url(self):
+    #     # Example: redirect to the detail page of the client associated with the goal
+    #     return reverse('client_detail', kwargs={'pk': self.object.client.pk})
 
 class GoalDetails(LoginRequiredMixin, DetailView):
     model=Goal

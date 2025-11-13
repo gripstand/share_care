@@ -10,6 +10,10 @@ from django.forms import inlineformset_factory
 from django.views.generic import CreateView,DetailView, ListView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from datetime import datetime, date
+from django.views.generic.edit import CreateView
+from django.urls import reverse_lazy
+from .models import Client
+from .forms import ClientForm, PhoneNumberFormSet
 
 # Create your views here.
 def index(request):
@@ -20,10 +24,7 @@ def index(request):
 
 #### ________________  Client Views --------------
 
-from django.views.generic.edit import CreateView
-from django.urls import reverse_lazy
-from .models import Client
-from .forms import ClientForm, PhoneNumberFormSet # Assuming these are your form and formset
+
 
 class CreateClient(LoginRequiredMixin, CreateView):
     model = Client
@@ -120,30 +121,63 @@ class ClientDetails(LoginRequiredMixin, DetailView):
         
         return context
 
-@login_required
-def update_client(request, client_id):
-    client = get_object_or_404(Client, pk=client_id)
+#@login_required
+# def update_client(request, client_id):
+#     client = get_object_or_404(Client, pk=client_id)
 
-    if request.method == 'POST':
-        client_form = ClientForm(request.POST, instance=client)
-        formset = PhoneNumberFormSetUpdate(request.POST, instance=client)
-        if client_form.is_valid() and formset.is_valid():
-            client_form.save()
-            formset.save()
-            return redirect('list_clients')
-    else:
-        client_form = ClientForm(instance=client)
-        if client.phone_numbers.exists():
-            formset = PhoneNumberFormSetUpdate(instance=client)
+#     if request.method == 'POST':
+#         client_form = ClientForm(request.POST, instance=client)
+#         formset = PhoneNumberFormSetUpdate(request.POST, instance=client)
+#         if client_form.is_valid() and formset.is_valid():
+#             client_form.save()
+#             formset.save()
+#             return redirect('list_clients')
+#     else:
+#         client_form = ClientForm(instance=client)
+#         if client.phone_numbers.exists():
+#             formset = PhoneNumberFormSetUpdate(instance=client)
+#         else:
+#             formset = PhoneNumberFormSet(instance=client)
+#     context = {
+#         'client_form': client_form,
+#         'formset': formset,
+#         'client': client, # Pass the entire object
+#         'client_id': client.id, # Pass the ID to the template
+#     }
+#     return render(request, 'create_client.html', context)
+
+#
+
+class ClientUpdateView(LoginRequiredMixin,UpdateView):
+    model = Client
+    form_class = ClientForm
+    template_name = 'create_client.html' # Uses the same template
+    success_url = reverse_lazy('list_clients')
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        if self.request.POST:
+            data['formset'] = PhoneNumberFormSetUpdate(self.request.POST, instance=self.object)
         else:
-            formset = PhoneNumberFormSet(instance=client)
-    context = {
-        'client_form': client_form,
-        'formset': formset,
-        'client': client, # Pass the entire object
-        'client_id': client.id, # Pass the ID to the template
-    }
-    return render(request, 'create_client.html', context)
+            # Check if there are existing phone numbers to initialize the formset
+            if self.object.phone_numbers.exists():
+                data['formset'] = PhoneNumberFormSetUpdate(instance=self.object)
+            else:
+                data['formset'] = PhoneNumberFormSet(instance=self.object)
+        return data
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        formset = context['formset']
+
+        if formset.is_valid():
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+            return super().form_valid(form)
+        else:
+            # If formset is invalid, return to the form with errors
+            return self.render_to_response(self.get_context_data(form=form))
 
 
 #---------------------- GOALS --------------------------#

@@ -23,7 +23,7 @@ def is_admin_group(user):
 
 
 # class CustomTwoFactorLoginView(LoginView):
-#     template_name = 'two_factor/login.html'
+#      template_name = 'two_factor/login.html'
 
 User = get_user_model()
 

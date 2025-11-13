@@ -45,6 +45,42 @@ class ClientForm(forms.ModelForm):
              'client_number':forms.HiddenInput(),
         }
         fields='__all__'
+        error_messages = {
+            'first_name': {
+                'required': "Client's first name is required."
+            },
+            'last_name': {
+                'required': "Client's last name is required."
+            },
+            'email': {
+                'required': "Client's email address is required."
+            },
+            'phone_main': {
+                'required': "Client's primary phone number is required."
+            },
+            'zip': {
+                'required': "Client's zip code is required."
+            },
+            'dob': {
+                'required': "Client's date of birth is required."
+            },
+            'gen_disability': {
+                'required': "Please select a general disability from the list."
+            },
+            'referred_by': {
+                'required': "Please select a referral source from the list."
+            },
+            'street_address': {
+                'required': "Client's street address is required."
+            },
+            'city': {
+                'required': "Client's city is required."
+            },
+            'state': {
+                'required': "Client's state is required."
+            },
+
+        }   
 
 
 class AddContactForm(forms.ModelForm):
@@ -52,6 +88,15 @@ class AddContactForm(forms.ModelForm):
     class Meta:
         model = AddContacts
         fields = '__all__'
+        error_messages = {
+                'add_contact_name': {
+                    'required': "Contact name is required."
+                },
+
+                'add_contact_phone': {
+                    'required': "Contact phone number is required."
+                },
+            }    
 
 PhoneNumberFormSet = inlineformset_factory(
     Client, 

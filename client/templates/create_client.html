@@ -28,9 +28,8 @@
     {% endfor %}
 </div>
 {% endif %}
-<form method="post">
+<form method="post" novalidate>
     {% csrf_token %}
-    {% bootstrap_form_errors form %}
     <h3>Client Details</h3>
     {% bootstrap_form_errors form layout='inline' %}
       {% bootstrap_form form layout=inline show_help='True' %} 
@@ -42,6 +41,7 @@
     
         <div class="form-row">
             <h5>Contact:</h5><hr/>
+            {% bootstrap_form_errors form layout='inline' %}
             {% bootstrap_form form %}
         </div>
         

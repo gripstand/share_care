@@ -42,7 +42,7 @@ Update Ticket: {{ticket}}
 <form method="post" novalidate>
     {% csrf_token %}
     {{form.ticket_update_by}}
-    {% bootstrap_form_errors form layout='inline' %}
+    
     {% bootstrap_form form layout=inline %}
     <button type="submit" class="btn btn-primary">Save Update</button>
 </form>

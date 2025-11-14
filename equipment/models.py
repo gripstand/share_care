@@ -22,9 +22,10 @@ class Equipment(models.Model):
         return self.eq_name
 
 class EquipmentStatus(models.Model):
-    status_date=models.DateField()
+    status_date=models.DateField(default=timezone.now)
     status=models.CharField(max_length=25,choices=EQStatusList.choices,blank=False,default='Inv')
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='eq_with_clients', blank=True, null=True)
+    status_notes=models.TextField(blank=True, null=True, verbose_name="Update Notes")
     equipment= models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name='status_history')
     
     def __str__(self):

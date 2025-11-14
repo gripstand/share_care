@@ -14,16 +14,21 @@ class EquipmentForm(forms.ModelForm):
         }
         model=Equipment
         fields='__all__'
+        error_messages = {
+            'eq_name': {
+                'unique': "An equipment with this name already exists.",
+                'required': "Equipment name is required.",
+            },
+        }
 
 class EqStatusForm(forms.ModelForm):
-       
     class Meta:
         model=EquipmentStatus
         widgets= {
              'status_date':DatePickerInput(),
              'equipment': forms.HiddenInput(),
         }
-        fields='__all__'
+        fields=('status_notes','status_date','status','status_notes','client','equipment')
 
     def __init__(self, *args, **kwargs):
         # Pop the custom argument before calling super()
@@ -33,7 +38,7 @@ class EqStatusForm(forms.ModelForm):
                 # Get the original choices from the model
         original_choices = self.fields['status'].choices
         
-        print(f'The last status is {last_status} and last contact is {last_client}')
+        #print(f'The last status is {last_status} and last contact is {last_client}')
         if last_client:
             self.fields['client'].initial = last_client
         if last_status in ALLOWED_TRANSITIONS:

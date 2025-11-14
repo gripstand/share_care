@@ -31,7 +31,22 @@ class CreateEquipment(CreateView):
             status_date=today
         )
         return super().form_valid(form)
-
+    def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            
+            # Define a safe fallback URL using the {% url %} tag's reverse lookup
+            fallback_url = reverse_lazy('list_equipment') # Example fallback
+            
+            # Get referer, falling back to the fallback_url if the header is missing
+            referer_url = self.request.META.get('HTTP_REFERER')
+            
+            # IMPORTANT: Make sure the referer isn't the current page!
+            if referer_url and referer_url != self.request.path:
+                context['previous_url'] = referer_url
+            else:
+                context['previous_url'] = fallback_url
+                
+            return context
 
 class ListEquipment(ListView):
     model = Equipment
@@ -85,6 +100,22 @@ class UpdateEquipment(UpdateView):
     context_object_name='eq'
     template_name='create_equipment.html'
     success_url=reverse_lazy('list_equipment')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Define a safe fallback URL using the {% url %} tag's reverse lookup
+        fallback_url = reverse_lazy('list_equipment') # Example fallback
+        
+        # Get referer, falling back to the fallback_url if the header is missing
+        referer_url = self.request.META.get('HTTP_REFERER')
+        
+        # IMPORTANT: Make sure the referer isn't the current page!
+        if referer_url and referer_url != self.request.path:
+            context['previous_url'] = referer_url
+        else:
+            context['previous_url'] = fallback_url
+            
+        return context
 
 class DetailEquipment(DetailView):
     model=Equipment
@@ -166,6 +197,19 @@ class CreateEqStatus(CreateView):
 
         # Get the equipment object and add it to the context
         context['equipment'] = get_object_or_404(Equipment, pk=eq_id)
+
+        # Define a safe fallback URL using the {% url %} tag's reverse lookup
+        fallback_url = reverse_lazy('list_equipment') # Example fallback
+        
+        # Get referer, falling back to the fallback_url if the header is missing
+        referer_url = self.request.META.get('HTTP_REFERER')
+        
+        # IMPORTANT: Make sure the referer isn't the current page!
+        if referer_url and referer_url != self.request.path:
+            context['previous_url'] = referer_url
+        else:
+            context['previous_url'] = fallback_url
+            
         
         return context
 

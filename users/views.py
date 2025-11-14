@@ -93,7 +93,7 @@ def CreateUser(request):
         else:
             # If the form is invalid, re-render the page with errors
             context = {"form": form}
-            return render(request, 'create_users.html', context)
+            return render(request, 'user_form.html', context)
     else:        
         form = CustomUserForm()
         context = {"form": form}
@@ -113,7 +113,7 @@ class AllUsers(OTPRequiredMixin, LoginRequiredMixin,ListView):
 class UpdateUser(UserPassesTestMixin, UpdateView):
     model=User
     context_object_name='users'
-    template_name='UserForm'
+    template_name='user_form.html'
     form_class=CustomUserForm
     success_url = reverse_lazy('list_users')
     login_url = reverse_lazy('login')

@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
-{% load bootstrap5 %}
+{% load django_bootstrap5 %}
 
 {% block title %}
 Edit User {{form.instance.first_name}}
 {% endblock %}
 
 {% block content %}
-
+<h1>Edit User {{form.instance.first_name}}</h1>
 <form method="post">
     {% csrf_token %}
 

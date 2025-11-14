@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import UserManager
+from django.utils.translation import gettext_lazy as _
 # Create your models here.
 
 
@@ -30,9 +31,29 @@ class CustomUserManager(UserManager):
 class CustomUser(AbstractUser):
     objects = CustomUserManager()
     email=models.EmailField(max_length=100, unique=True)
+    first_name = models.CharField(
+        max_length=150, 
+        blank=False,  # This makes it required in forms
+        null=False    # This makes it required in the database
+    )
+    last_name = models.CharField(
+        max_length=150, 
+        blank=False,  # This makes it required in forms
+        null=False    # This makes it required in the database
+    )
+    is_active = models.BooleanField(
+        # The display name (can be changed)
+        _('active'), 
+        # Ensures new users are active
+        default=True,         
+        # Allows the field to be left unchecked (not required) in forms
+        blank=True,
+        help_text ='Uncheck this box to deactivate user. They will no longer be able to log in.',
+
+    )
     username = models.CharField(max_length=100, null=True, blank=True)
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
     access_to_system=models.BooleanField('Access to System', default=True)
 
     def save(self, *args, **kwargs):

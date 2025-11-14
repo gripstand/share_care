@@ -59,15 +59,16 @@
       
         {% block content_wrapper %}
         <div class="container">
-
+          <div style="min-height: 50vh; margin: 20px 0; border: 2px solid #9e9a9a; padding: 15px; border-radius: 5px;">
         {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
         {% block content %}(no content){% endblock %}
-        </div>
+      </div>  
+      </div>
         {% endblock %}
     </div>
 <footer class="mt-auto py-3 bg-light border-top">
         <div class="container d-flex justify-content-between">
-            <span class="text-muted">© {% now "Y" %} Your Company.</span>
+            <span class="text-muted">© {% now "Y" %} The SHARE Foundation<br/>Designed by VegaInteractive LLC</span>
             <p class="float-center"><a href="/admin">Admin</a></p>
             <p class="float-end"><a href="">Back to top</a></p>
         </div>

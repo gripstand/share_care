@@ -14,6 +14,7 @@ class CustomUserForm(forms.ModelForm):
         self.fields["username"] = forms.CharField(
         widget=forms.HiddenInput(),
         required=False,  # It's good practice to set hidden fields as not required
+        
         )
         self.fields["groups"] = forms.ModelMultipleChoiceField(
             queryset=Group.objects.all(),
@@ -28,6 +29,7 @@ class CustomUserForm(forms.ModelForm):
             help_text='Uncheck for individules that can be associated with data in the system, but will not be using this system.',
             initial=True,
         )
+        self.fields['is_active'].required = False       
         self.fields["email"].widget.attrs.update({
             'class':'form-input',
             'placeholder':'Me@Somewhere.com',
@@ -44,3 +46,15 @@ class CustomUserForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ['first_name','last_name','email','access_to_system','is_active','username','groups']
+        error_messages = {
+            'email': {
+                'unique': "A user with that email already exists.",
+                'required': "Email is required.",
+            },
+            'first_name': {
+                'required': "First name is required.",
+            },
+            'last_name': {
+                'required': "Last name is required.",
+            },
+        }

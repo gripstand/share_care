@@ -7,8 +7,8 @@ Listing Equipment
 {% endblock %}
 
 {% block content %}
-
-
+<h1>Equipment List</h1>
+<a href="{% url 'add_equipment' %}" class="btn btn-info" role="button">Add New Equipment</a>
 <script type="text/javascript" class="init">
         $(document).ready(function() {
             $('#myTable').DataTable();
@@ -56,5 +56,5 @@ Listing Equipment
 {% endfor %}
 </table>
 
-<a href="{% url 'add_equipment' %}" class="btn btn-info" role="button">Add New Equipment</a>
+
 {% endblock %}

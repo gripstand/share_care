@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 
-{% load bootstrap5 %}
+{% load django_bootstrap5 %}
 
 {% block title %}
 User Profile {{this_user.first_name}}
 {% endblock %}
 
 {% block content %}
+<h1>User Profile {{this_user.first_name}}</h1>
 <p>Welcome {{ user.username }}!</p>
 <p>
 <b>First Name:</b> {{this_user.first_name}}

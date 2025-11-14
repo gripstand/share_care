@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-
+<h1>Details for {{eq}}</h1>
 
 
 <strong>Name</strong>: {{eq.eq_name}}</br>
@@ -46,7 +46,7 @@
         </ul>
     {% endif %}
 
-    <a href="{% url 'list_equipment' %}" class="btn btn-info" role="button">List</a>  <a href="/equipment/create_eq_status/{{ eq.pk }}" class="btn btn-info" role="button">Add History</a>
+    <a href="{% url 'list_equipment' %}" class="btn btn-info" role="button">List</a>  <a href="{% url 'update_equipment' eq.pk %}" class="btn btn-info" role="button">Edit</a> <a href="/equipment/create_eq_status/{{ eq.pk }}" class="btn btn-info" role="button">Add History</a>
 </p>
 
 {% endblock %}

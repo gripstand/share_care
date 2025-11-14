@@ -1,12 +1,13 @@
 
 {% extends 'base.html' %}
-{% load bootstrap5 %}
+{% load django_bootstrap5 %}
 
 {% block title %}
     Create a New User
 {% endblock %}
 
 {% block content %}
+<h1>Create a New User</h1>
 {% if form.non_field_errors %}
 <div class="alert alert-danger" role="alert">
     {% for error in form.non_field_errors %}
@@ -14,9 +15,9 @@
     {% endfor %}
 </div>
 {% endif %}
-    <form method="post">
+    <form method="post" novalidate>
         {% csrf_token %}
-
+        {% bootstrap_form_errors form layout='inline' %}
         {% bootstrap_form form layout=inline %}
 
         {% bootstrap_button button_type="submit" content="Submit" %}

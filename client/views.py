@@ -121,32 +121,6 @@ class ClientDetails(LoginRequiredMixin, DetailView):
         
         return context
 
-#@login_required
-# def update_client(request, client_id):
-#     client = get_object_or_404(Client, pk=client_id)
-
-#     if request.method == 'POST':
-#         client_form = ClientForm(request.POST, instance=client)
-#         formset = PhoneNumberFormSetUpdate(request.POST, instance=client)
-#         if client_form.is_valid() and formset.is_valid():
-#             client_form.save()
-#             formset.save()
-#             return redirect('list_clients')
-#     else:
-#         client_form = ClientForm(instance=client)
-#         if client.phone_numbers.exists():
-#             formset = PhoneNumberFormSetUpdate(instance=client)
-#         else:
-#             formset = PhoneNumberFormSet(instance=client)
-#     context = {
-#         'client_form': client_form,
-#         'formset': formset,
-#         'client': client, # Pass the entire object
-#         'client_id': client.id, # Pass the ID to the template
-#     }
-#     return render(request, 'create_client.html', context)
-
-#
 
 class ClientUpdateView(LoginRequiredMixin,UpdateView):
     model = Client
@@ -205,7 +179,17 @@ class CreateGoal(LoginRequiredMixin, CreateView):
         # Add the client instance to the context for template display
         client_id = self.kwargs.get('client_id')
         context['client'] = get_object_or_404(Client, pk=client_id)
+        # Define a safe fallback URL using the {% url %} tag's reverse lookup
+        fallback_url = reverse_lazy('list_clients') # Example fallback
         
+        # Get referer, falling back to the fallback_url if the header is missing
+        referer_url = self.request.META.get('HTTP_REFERER')
+        
+        # IMPORTANT: Make sure the referer isn't the current page!
+        if referer_url and referer_url != self.request.path:
+            context['previous_url'] = referer_url
+        else:
+            context['previous_url'] = fallback_url
         return context
     
 

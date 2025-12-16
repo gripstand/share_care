@@ -10,7 +10,7 @@ django-formtools==2.5.1
 django-localflavor==5.0
 django-otp==1.6.1
 django-phonenumber-field==8.1.0
-django-two-factor-auth==1.17.0
+django-two-factor-auth==1.18.1
 phonenumbers==9.0.12
 pydantic==2.11.7
 pydantic_core==2.33.2

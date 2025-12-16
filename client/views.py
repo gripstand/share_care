@@ -34,20 +34,26 @@ class CreateClient(LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         # Call the base class's get_context_data to get the default context
-        data = super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         # Ensure the main form is available if not already
         # CreateView typically adds 'form' to context, but you can explicitly set it if needed
-        if 'form' not in data:
-            data['form'] = self.get_form() # Get the form instance
+        if 'form' not in context:
+            context['form'] = self.get_form() # Get the form instance
 
         # Add the formset to the context
         if self.request.POST:
-            data['formset'] = PhoneNumberFormSet(self.request.POST)
+            context['formset'] = PhoneNumberFormSet(self.request.POST)
         else:
-            data['formset'] = PhoneNumberFormSet()
-        
-        return data
+            context['formset'] = PhoneNumberFormSet()
+        # Routine for coding a safe "Cancel" button
+        fallback_url = reverse_lazy('list_clients') # Example fallback
+        referer_url = self.request.META.get('HTTP_REFERER')
+        if referer_url and referer_url != self.request.path:
+            context['previous_url'] = referer_url
+        else:
+            context['previous_url'] = fallback_url
+        return context
 
     def form_valid(self, form):
         # Get the formset from the context to validate it
@@ -129,16 +135,24 @@ class ClientUpdateView(LoginRequiredMixin,UpdateView):
     success_url = reverse_lazy('list_clients')
 
     def get_context_data(self, **kwargs):
-        data = super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         if self.request.POST:
-            data['formset'] = PhoneNumberFormSetUpdate(self.request.POST, instance=self.object)
+            context['formset'] = PhoneNumberFormSetUpdate(self.request.POST, instance=self.object)
         else:
             # Check if there are existing phone numbers to initialize the formset
             if self.object.phone_numbers.exists():
-                data['formset'] = PhoneNumberFormSetUpdate(instance=self.object)
+                context['formset'] = PhoneNumberFormSetUpdate(instance=self.object)
             else:
-                data['formset'] = PhoneNumberFormSet(instance=self.object)
-        return data
+                context['formset'] = PhoneNumberFormSet(instance=self.object)
+        # Routine for coding a safe "Cancel" button
+        fallback_url = reverse_lazy('list_clients') # Example fallback
+        referer_url = self.request.META.get('HTTP_REFERER')
+        if referer_url and referer_url != self.request.path:
+            context['previous_url'] = referer_url
+        else:
+            context['previous_url'] = fallback_url
+        
+        return context
 
     def form_valid(self, form):
         context = self.get_context_data()
@@ -179,13 +193,10 @@ class CreateGoal(LoginRequiredMixin, CreateView):
         # Add the client instance to the context for template display
         client_id = self.kwargs.get('client_id')
         context['client'] = get_object_or_404(Client, pk=client_id)
-        # Define a safe fallback URL using the {% url %} tag's reverse lookup
+        
+        # Routine for coding a safe "Cancel" button
         fallback_url = reverse_lazy('list_clients') # Example fallback
-        
-        # Get referer, falling back to the fallback_url if the header is missing
         referer_url = self.request.META.get('HTTP_REFERER')
-        
-        # IMPORTANT: Make sure the referer isn't the current page!
         if referer_url and referer_url != self.request.path:
             context['previous_url'] = referer_url
         else:
@@ -221,7 +232,13 @@ class UpdateGoalView(LoginRequiredMixin, UpdateView):
         
         # Often useful to indicate if this is an update vs. a create
         context['is_update'] = True
-        
+        # Routine for coding a safe "Cancel" button
+        fallback_url = reverse_lazy('list_clients') # Example fallback
+        referer_url = self.request.META.get('HTTP_REFERER')
+        if referer_url and referer_url != self.request.path:
+            context['previous_url'] = referer_url
+        else:
+            context['previous_url'] = fallback_url
         return context
 
     # If you need custom success logic (like redirecting to the updated goal's detail page),
@@ -280,7 +297,13 @@ class CreateGoalUpdate(LoginRequiredMixin, CreateView):
         # Add the goal instance to the context for template display
         goal_id = self.kwargs.get('goal_id')
         context['goal'] = get_object_or_404(Goal, pk=goal_id)
-        
+        # Routine for coding a safe "Cancel" button
+        fallback_url = reverse_lazy('list_clients') # Example fallback
+        referer_url = self.request.META.get('HTTP_REFERER')
+        if referer_url and referer_url != self.request.path:
+            context['previous_url'] = referer_url
+        else:
+            context['previous_url'] = fallback_url
         return context
     
     # This is for conditional logic
@@ -324,7 +347,13 @@ class CreateAction(LoginRequiredMixin, CreateView):
         # Add the client instance to the context for template display
         client_id = self.kwargs.get('client_id')
         context['client'] = get_object_or_404(Client, pk=client_id)
-        
+        # Routine for coding a safe "Cancel" button
+        fallback_url = reverse_lazy('list_clients') # Example fallback
+        referer_url = self.request.META.get('HTTP_REFERER')
+        if referer_url and referer_url != self.request.path:
+            context['previous_url'] = referer_url
+        else:
+            context['previous_url'] = fallback_url
         return context
     
 class ListActions(LoginRequiredMixin, ListView):
@@ -355,7 +384,15 @@ class UpdateAction(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['client'] = self.object.client  # Pass the client object to the template
+        # Routine for coding a safe "Cancel" button
+        fallback_url = reverse_lazy('list_clients') # Example fallback
+        referer_url = self.request.META.get('HTTP_REFERER')
+        if referer_url and referer_url != self.request.path:
+            context['previous_url'] = referer_url
+        else:
+            context['previous_url'] = fallback_url
         return context
+
 
     def get_object(self, queryset=None):
         action_id = self.kwargs.get('pk')
@@ -363,7 +400,7 @@ class UpdateAction(LoginRequiredMixin, UpdateView):
     
     def get_success_url(self):
         return reverse_lazy('action_detail', kwargs={'pk': self.object.pk})
-
+        return context
 # ---------------------- Tickets --------------------------#
 
 class CreateTicket(LoginRequiredMixin, CreateView):
@@ -386,15 +423,26 @@ class CreateTicket(LoginRequiredMixin, CreateView):
         }
     
     def get_context_data(self, **kwargs):
-        data = super().get_context_data(**kwargs)
+        # 1. Use 'context' for the standard dictionary returned by the parent class
+        context = super().get_context_data(**kwargs)
+        
+        # 2. Assign values using the standard 'context' variable
         # Use the stored action object
-        data['action'] = self.action_instance
+        context['action'] = self.action_instance
+        
         # Add the formset logic as before
         if self.request.POST:
-            data['formset'] = TicketUpdateFormSet(self.request.POST)
+            context['formset'] = TicketUpdateFormSet(self.request.POST)
         else:
-            data['formset'] = TicketUpdateFormSet()
-        return data
+            context['formset'] = TicketUpdateFormSet()
+                # Routine for coding a safe "Cancel" button
+        fallback_url = reverse_lazy('list_clients') # Example fallback
+        referer_url = self.request.META.get('HTTP_REFERER')
+        if referer_url and referer_url != self.request.path:
+            context['previous_url'] = referer_url
+        else:
+            context['previous_url'] = fallback_url    
+        return context
 
     def form_valid(self, form):
         context = self.get_context_data()
@@ -453,10 +501,17 @@ class AddTicketUpdate(LoginRequiredMixin, CreateView):
             }
 
     def get_context_data(self, **kwargs):
-        data = super().get_context_data(**kwargs)
-        data['ticket'] = self.ticket_instance
-        data['previous_updates'] = self.ticket_instance.updates_for_ticket.all().order_by('-ticket_update_date')
-        return data
+        context = super().get_context_data(**kwargs)
+        context['ticket'] = self.ticket_instance
+        context['previous_updates'] = self.ticket_instance.updates_for_ticket.all().order_by('-ticket_update_date')
+                # Routine for coding a safe "Cancel" button
+        fallback_url = reverse_lazy('list_clients') # Example fallback
+        referer_url = self.request.META.get('HTTP_REFERER')
+        if referer_url and referer_url != self.request.path:
+            context['previous_url'] = referer_url
+        else:
+            context['previous_url'] = fallback_url
+        return context
 
 class TicketDetails(LoginRequiredMixin, DetailView):
     model=Ticket
@@ -489,6 +544,13 @@ class CreateEval(LoginRequiredMixin, CreateView):
         # Add the client instance to the context for template display
         client_id = self.kwargs.get('client_id')
         context['client'] = get_object_or_404(Client, pk=client_id)
+        # Routine for coding a safe "Cancel" button
+        fallback_url = reverse_lazy('list_clients') # Example fallback
+        referer_url = self.request.META.get('HTTP_REFERER')
+        if referer_url and referer_url != self.request.path:
+            context['previous_url'] = referer_url
+        else:
+            context['previous_url'] = fallback_url
         return context
     
 class UpdateEval(LoginRequiredMixin, UpdateView):
@@ -500,6 +562,13 @@ class UpdateEval(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['client'] = self.object.client  # Pass the client object to the template
+        # Routine for coding a safe "Cancel" button
+        fallback_url = reverse_lazy('list_clients') # Example fallback
+        referer_url = self.request.META.get('HTTP_REFERER')
+        if referer_url and referer_url != self.request.path:
+            context['previous_url'] = referer_url
+        else:
+            context['previous_url'] = fallback_url
         return context
 
     def get_object(self, queryset=None):

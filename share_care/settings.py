@@ -101,6 +101,12 @@ TEMPLATES = [
     },
 ]
 
+BOOTSTRAP_5 = {
+    # This setting is usually enough to add the required asterisk to the label
+    'label_required_css_class': 'required',
+    'label_format': '{label} <span class="text-danger">*</span>',
+}
+
 WSGI_APPLICATION = 'share_care.wsgi.application'
 
 

@@ -40,6 +40,7 @@ class ClientForm(forms.ModelForm):
 
     class Meta:
         model = Client
+        required_css_class = 'django-required'
         widgets= {
              'dob':DatePickerInput(),
              'client_number':forms.HiddenInput(),

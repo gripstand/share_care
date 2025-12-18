@@ -1,6 +1,8 @@
+from multiprocessing import context
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, DeleteView
 from equipment.models import Equipment, EquipmentStatus
+from client.models import Equipment_with_client
 from django.contrib import messages
 from .forms import EquipmentForm, EqStatusForm
 from django.urls import reverse_lazy
@@ -134,7 +136,8 @@ class DetailEquipment(DetailView):
         return context
 
     def new_method(self, context, equipment):
-        context['status_updates'] = equipment.status_history.all().order_by('-status_date')
+        # Adding '-id' ensures that if dates are the same, the most recent entry wins
+        context['status_updates'] = equipment.status_history.all().order_by('-status_date', '-id')
 
 #### ________________ EQUIPMENT STATUS________________ ####
 
@@ -187,16 +190,42 @@ class CreateEqStatus(CreateView):
         # Set the initial value for the 'equipment' foreign key field
         return {'equipment': equipment_instance}
     
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     eq_id = self.kwargs.get('eq_id')
+    #     equipment = get_object_or_404(Equipment, pk=eq_id)
+        
+    #     # Get the last record
+    #     last_record = EquipmentStatus.objects.filter(equipment=equipment).order_by('-status_date').first()
+        
+    #     # Pass the 'Display' name (e.g., "With Client") instead of the key ("CLIENT")
+    #     context['current_status_display'] = last_record.get_status_display() if last_record else "No History"
+    #     return context
+
+
+
+
     def get_context_data(self, **kwargs):
-        # This to populate the template....
-        # Call the base implementation first to get the context
+        # 1. Start with the default context
         context = super().get_context_data(**kwargs)
         
-        # Get the equipment ID from the URL
+        # 2. Explicitly fetch the equipment again
         eq_id = self.kwargs.get('eq_id')
-
-        # Get the equipment object and add it to the context
-        context['equipment'] = get_object_or_404(Equipment, pk=eq_id)
+        equipment_obj = get_object_or_404(Equipment, pk=eq_id)
+        
+        # 3. Use a unique key to avoid any conflict with the form's 'equipment' field
+        context['selected_equipment'] = equipment_obj
+        
+        # 4. Get the status display
+        last_record = EquipmentStatus.objects.filter(
+            equipment=equipment_obj
+        ).order_by('-status_date', '-id').first()
+    
+        if last_record:
+            context['current_status_display'] = last_record.get_status_display()
+        else:
+            context['current_status_display'] = "No History Found"
 
         # Define a safe fallback URL using the {% url %} tag's reverse lookup
         fallback_url = reverse_lazy('list_equipment') # Example fallback
@@ -210,23 +239,33 @@ class CreateEqStatus(CreateView):
         else:
             context['previous_url'] = fallback_url
             
-        
         return context
 
     def form_valid(self, form):
-        # The form has a hidden field for 'equipment'
-        # The value is an ID, but the field expects an object.
-        equipment_id = self.request.POST.get('equipment')
-        equipment_instance = get_object_or_404(Equipment, pk=equipment_id)
-        
-        # Save the new EquipmentUpdate record first and assign it to self.object
-        self.object = form.save()
+            self.object = form.save()
+            equipment_instance = self.object.equipment
+            
+            # 1. Handle Active Status
+            if self.object.status == 'SUNSET':
+                equipment_instance.eq_active_status = False
+                equipment_instance.save()
 
-        # Now that self.object exists, you can safely check its status
-        if self.object.status == 'SUNSET':
-            # You can access the related equipment instance directly from the new object
-            # self.object.equipment is the same as equipment_instance here
-            equipment_instance.eq_active_status = False
-            equipment_instance.save()
-        
-        return super().form_valid(form)
+            # 2. Use the database value 'CLIENT'
+            if self.object.status == 'CLIENT':
+                print("Success: Updating Equipment_with_client table")
+                from client.models import Equipment_with_client
+                Equipment_with_client.objects.update_or_create(
+                    equipment=equipment_instance,
+                    defaults={
+                        'client': self.object.client,
+                        'date_issued': self.object.status_date
+                    }
+                )
+            else:
+                # If it's anything else (In Storage, Maintenance, etc.), remove from table
+                from client.models import Equipment_with_client
+                deleted_count, _ = Equipment_with_client.objects.filter(equipment=equipment_instance).delete()
+                if deleted_count > 0:
+                    print(f"Success: Removed {equipment_instance} from active loan table")
+
+            return super().form_valid(form)

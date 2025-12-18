@@ -173,6 +173,14 @@ class GoalUpdate(models.Model):
     g_status_notes=models.TextField(null=True, blank=True,verbose_name="Notes about this update")
 
 
+#-------------------------------- Models for equipment
+
+class Equipment_with_client(models.Model):
+    equipment = models.ForeignKey('equipment.Equipment', on_delete=models.CASCADE)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    date_issued=models.DateField(default=timezone.now)
+
+
 #-------------------------------- Models for Actions
 
 

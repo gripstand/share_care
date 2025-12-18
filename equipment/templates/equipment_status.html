@@ -4,11 +4,15 @@
 {% load static %}
 
 {% block title %}
-Add a Status Update for {{equipment}}
+Add a Status Update for: {{equipment.eq_name}}
 {% endblock %}
 
 {% block content %}
-<h1>Add a Status Update for {{equipment}}</h1>
+<h3>Updating Status for: {{ selected_equipment.eq_name }}</h3>
+
+<div class="status-box">
+    <strong>Current Status:</strong> {{ current_status_display }}
+</div>
 {% if form.non_field_errors %}
 <div class="alert alert-danger" role="alert">
     {% for error in form.non_field_errors %}

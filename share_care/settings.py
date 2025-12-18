@@ -28,8 +28,8 @@ SECRET_KEY = 'django-insecure-1#c1x2x1quf2^=wi^(wiov##(4=vb16h%@rdik*bzl+)io3q(0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['sharecaredb.org','www.sharecaredb.org','50-116-51-196.ip.linodeusercontent.com','50.116.51.196','localhost','127.0.0.1']
+SITE_ID = 1
 
 # Application definition
 
@@ -44,10 +44,9 @@ INSTALLED_APPS = [
     #'client.apps.ClientConfig',
     'django.contrib.admin',
     'django.contrib.auth',
-
+    'django.contrib.sites',
     'bootstrap_datepicker_plus',
     'phonenumber_field',
-
     'django_otp',
     'django_otp.plugins.otp_static',
     'django_otp.plugins.otp_totp',
@@ -181,17 +180,23 @@ TWO_FACTOR_STRIC = True
 # settings.py
 SITE_NAME = "SHARE Care System"
 DOMAIN_NAME = "127.0.0.1:8000"  # Use your production domain for production
+#DOMAIN_NAME = "sharecaredb.org"  # Use your production domain for production
 
 # Email settings
 
-#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# EMAIL_HOST = '127.0.0.1'
-# EMAIL_PORT = 1025  # Default port for many local SMTP servers
-# EMAIL_USE_TLS = False
-# EMAIL_USE_SSL = False
-# The email address that will show as the sender
 DEFAULT_FROM_EMAIL = 'gripstand@gmail.com'
+
+# FOR PRODUCTION USE THE FOLLOWING EMAIL SETTINGS INSTEAD OF THE ABOVE
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'gripstand@gmail.com'
+# EMAIL_HOST_PASSWORD = 'bwtxgrwwrjgsquid' # No spaces!
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
 
 # Settings for django-bootstrap-v5
 

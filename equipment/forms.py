@@ -38,7 +38,7 @@ class EqStatusForm(forms.ModelForm):
                 # Get the original choices from the model
         original_choices = self.fields['status'].choices
         
-        #print(f'The last status is {last_status} and last contact is {last_client}')
+        print(f'The last status is {last_status} and last contact is {last_client}')
         if last_client:
             self.fields['client'].initial = last_client
         if last_status in ALLOWED_TRANSITIONS:

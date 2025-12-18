@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+
+{% block title %}
+Listing All Tickets
+{% endblock %}
+
+{% block content %}
+<h1>Listing Tickets in System</h1>
+<script type="text/javascript" class="init">
+        $(document).ready(function() {
+            $('#myTable').DataTable();
+        });
+</script>
+
+<table id="myTable" class="display">  
+    <thead>
+    <tr>
+        <th>Slug</th>
+        <th>Created</th>
+        <th>Status</th>
+        <th>related to</th>
+        <th colspan="2">Action</th>
+    </tr>
+    </thead>
+{% for ticket in tickets %}
+<tr>
+    <td>{{ticket.ticket_slug}}</td>
+    <td>{{ticket.ticket_create_date}}</td>
+    <td>{{ticket.ticket_status}}</td>
+    <td>{{ticket.action}}</td>
+    <td><a href='/client/ticket_detail/{{ticket.id}}'>View</a></td>
+    <td><a href='/client/update_ticket/{{ticket.id}}'>Edit</a></td>    
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}
+
+
+<!-- class Ticket(models.Model):
+    ticket_slug=models.CharField(max_length=30, verbose_name="Ticket Short Name")
+    ticket_create_date=models.DateField(default=timezone.now)
+    ticket_created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,  # Use settings.AUTH_USER_MODEL for consistency
+        on_delete=models.CASCADE,
+        related_name='tickets_created_by_user',
+        verbose_name="Ticket created by"
+    )
+    ticket_issue=models.TextField(verbose_name="Issue Description")
+    ticket_status=models.CharField(choices=TicketStatusTypes.choices, max_length=30, default='ACTIVE', verbose_name="Ticket Status")
+    ticket_resolved_date=models.DateField(null=True, blank=True, verbose_name="Resolved Date")
+    ticket_open=models.BooleanField(default=True)
+    action=models.ForeignKey(Actions, on_delete=models.CASCADE, related_name='ticket_for_action')
+
+    def __str__(self):
+        return self.ticket_slug
+     -->

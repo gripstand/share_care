@@ -5,6 +5,7 @@ from django.forms import inlineformset_factory
 from django.forms import ModelForm
 from phonenumber_field.formfields import PhoneNumberField
 from datetime import date, timedelta
+from dateutil.relativedelta import relativedelta
 from share_care.widgets import ExpiryDateWidget
 from share_care.fields import TimeSumField
 
@@ -224,31 +225,25 @@ class ActionForm(forms.ModelForm):
     def save(self, commit=True):
         instance = super().save(commit=False)
         
-        # Check if a follow-up date was manually set by the user
         if self.cleaned_data.get('action_follow_up_date'):
-            # Use the user-provided date and ignore the period
             instance.action_follow_up_date = self.cleaned_data.get('action_follow_up_date')
-        
-        # Otherwise, calculate the date based on the period
         else:
             follow_up_period = self.cleaned_data.get('action_follow_up_period')
             if follow_up_period:
                 today = date.today()
-                if follow_up_period == '1 Week':
-                    instance.action_follow_up_date = today + timedelta(days=7)
-                elif follow_up_period == '2 Weeks':
-                    instance.action_follow_up_date = today + timedelta(days=14)
-                elif follow_up_period == '3 Weeks':
-                    instance.action_follow_up_date = today + timedelta(days=21)
-                elif follow_up_period == '1 Month':
-                    # This handles month addition more carefully
-                    instance.action_follow_up_date = today.replace(month=today.month + 1)
-                elif follow_up_period == '2 Months':
-                    instance.action_follow_up_date = today.replace(month=today.month + 2)
-                elif follow_up_period == '3 Months':
-                    instance.action_follow_up_date = today.replace(month=today.month + 3)
-                elif follow_up_period == '6 Months':
-                    instance.action_follow_up_date = today.replace(month=today.month + 6)
+                # mapping periods to relativedelta arguments
+                periods = {
+                    '1 Week': relativedelta(weeks=1),
+                    '2 Weeks': relativedelta(weeks=2),
+                    '3 Weeks': relativedelta(weeks=3),
+                    '1 Month': relativedelta(months=1),
+                    '2 Months': relativedelta(months=2),
+                    '3 Months': relativedelta(months=3),
+                    '6 Months': relativedelta(months=6),
+                }
+                
+                if follow_up_period in periods:
+                    instance.action_follow_up_date = today + periods[follow_up_period]
                 else:
                     instance.action_follow_up_date = None
             else:

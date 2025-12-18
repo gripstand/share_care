@@ -20,6 +20,7 @@ urlpatterns=[
     path('update_action/<int:pk>', views.UpdateAction.as_view(), name='update_action'),
     path('add_ticket/<int:action_id>', views.CreateTicket.as_view(), name='add_ticket'),
     path('update_ticket/<int:ticket_id>/', views.AddTicketUpdate.as_view(), name='update_ticket'),
+    path('list_tickets/', views.ListTickets.as_view(), name='list_tickets'),
     path('ticket_detail/<int:pk>/', views.TicketDetails.as_view(), name='ticket_detail'),
     path('add_eval/<int:client_id>/', views.CreateEval.as_view(), name='add_eval'),
     path('update_eval/<int:pk>/', views.UpdateEval.as_view(), name='update_eval'),

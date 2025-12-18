@@ -10,6 +10,7 @@ from django.forms import inlineformset_factory
 from django.views.generic import CreateView,DetailView, ListView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from datetime import datetime, date
+from dateutil.relativedelta import relativedelta
 from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
 from .models import Client
@@ -330,14 +331,20 @@ class CreateAction(LoginRequiredMixin, CreateView):
 
     def get_initial(self):
         initial = super().get_initial()
-        # Access the URL parameter 'client_id' from self.kwargs
-        #client_id = self.kwargs.get('client_id')
         
-        # Look up the actual Client object from the database
-        #client_instance = get_object_or_404(Client, pk=client_id)
+        # 1. Get the ID from the URL
+        client_id = self.kwargs.get('client_id')
+        
+        # 2. Get the actual object
+        client_instance = get_object_or_404(Client, pk=client_id)
+        
+        # 3. Assign the object to the 'client' field
+        # Django is smart enough to use the ID from this object
+        initial['client'] = client_instance
+        
+        # 4. Do the same for the user
         initial['action_user'] = self.request.user
-        # This is where you set initial values for the form's fields
-        #return {'client': client_instance}
+    
         return initial
 
     def get_context_data(self, **kwargs):
@@ -518,6 +525,10 @@ class TicketDetails(LoginRequiredMixin, DetailView):
     context_object_name='ticket'
     template_name='ticket_details.html'
 
+class ListTickets(LoginRequiredMixin, ListView):
+    model=Ticket
+    context_object_name='tickets'
+    template_name='list_tickets.html'
 
 #---------------------- Evaluations --------------------------#
 

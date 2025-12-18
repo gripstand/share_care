@@ -4,6 +4,7 @@ from django.views.generic import CreateView, DetailView, ListView, UpdateView, D
 from equipment.models import Equipment, EquipmentStatus
 from client.models import Equipment_with_client
 from django.contrib import messages
+#from share_care import equipment
 from .forms import EquipmentForm, EqStatusForm
 from django.urls import reverse_lazy
 from datetime import date
@@ -151,16 +152,15 @@ class CreateEqStatus(CreateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         
-        # Get the equipment instance from the URL
         eq_id = self.kwargs.get('eq_id')
         equipment = get_object_or_404(Equipment, pk=eq_id)
         
-        # Find the last saved status for this equipment
+        # Adding '-id' ensures the most recently created record 
+        # for that day is treated as the "current" one.
         last_status_record = EquipmentStatus.objects.filter(
             equipment=equipment
-        ).order_by('-status_date').first()
+        ).order_by('-status_date', '-id').first()
         
-        # Pass the last status value to the form's __init__ method
         kwargs['last_status'] = last_status_record.status if last_status_record else None
         kwargs['last_client'] = last_status_record.client if last_status_record else None
         return kwargs
@@ -189,22 +189,6 @@ class CreateEqStatus(CreateView):
             
         # Set the initial value for the 'equipment' foreign key field
         return {'equipment': equipment_instance}
-    
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     eq_id = self.kwargs.get('eq_id')
-    #     equipment = get_object_or_404(Equipment, pk=eq_id)
-        
-    #     # Get the last record
-    #     last_record = EquipmentStatus.objects.filter(equipment=equipment).order_by('-status_date').first()
-        
-    #     # Pass the 'Display' name (e.g., "With Client") instead of the key ("CLIENT")
-    #     context['current_status_display'] = last_record.get_status_display() if last_record else "No History"
-    #     return context
-
-
-
 
     def get_context_data(self, **kwargs):
         # 1. Start with the default context

@@ -70,7 +70,7 @@ ALLOWED_TRANSITIONS = {
     'INV': ['CLIENT', 'MAINT', 'SUNSET', 'UNKNOWN'],
     'CLIENT': ['RETURN', 'LOST'],
     'MAINT': ['CLIENT', 'INV', 'SUNSET', 'UNKNOWN', 'LOST'],
-    'LOST': ['SUNSET', 'INV', 'UNKNOWN'],
+    'LOST': ['SUNSET', 'INV', 'UNKNOWN','CLIENT'],
     'RTO': ['SUNSET'],
     'SUNSET': ['INV'],
     'UNKNOWN': ['INV', 'CLIENT'],

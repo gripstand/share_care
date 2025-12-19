@@ -7,6 +7,15 @@ Ticket For: {{ ticket.client }}
 {% endblock %}
 
 {% block content %}
+{% if not ticket.ticket_open %}
+    <div class="alert alert-secondary d-flex align-items-center mb-4" role="alert">
+        <i class="bi bi-lock-fill me-3" style="font-size: 1.5rem;"></i>
+        <div>
+            <strong>This ticket is Closed.</strong> 
+            Resolved on {{ ticket.ticket_resolved_date|date:"M d, Y" }} by {{ ticket.ticket_created_by }}.
+        </div>
+    </div>
+{% endif %}
 <h1>Ticket Details for {{ ticket.client }}</h1>
 Ticket Short Name: {{ ticket.ticket_slug }}<br>
 Ticket Created On: {{ ticket.ticket_create_date }}<br>
@@ -19,27 +28,49 @@ Ticket Resolved Date: {{ ticket.ticket_resolved_date }}<br>
 Ticket Associated Action: <a href="/client/action_detail/{{ticket.action.id}}">Action ID: {{ticket.action.id}}</a><br>
 <br>
 
-<h3>Previous Updates for this Ticket</h3>
-{% if previous_updates %}
-    <ul>
-        {% for update in previous_updates %}
-            <li>
-                Update Date: {{ update.ticket_update_date }} - Updated By: {{ update.ticket_update_by }}<br>
-                Update Notes: {{ update.ticket_update_notes }}<br><br>
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No updates recorded for this ticket.</p>
+<h3>Ticket History</h3>
+<hr>
+
+{% for update in updates %}
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between">
+            <strong>Update by: {{ update.ticket_update_by }}</strong>
+            <span class="text-muted">{{ update.ticket_update_date }}</span>
+        </div>
+        <div class="card-body">
+            <p class="card-text">{{ update.ticket_update_notes }}</p>
+        </div>
+        <div class="card-footer text-muted small">
+            Assigned to: {{ update.ticket_assign_to }}
+        </div>
+    </div>
+{% empty %}
+    <p>No updates have been recorded for this ticket yet.</p>
+{% endfor %}
+
+
+<div class="mt-3">
+    {% if ticket.ticket_open %}
+        <a href="/client/update_ticket/{{ticket.id}}"  class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add Update
+        </a>
+    {% else %}
+        <button class="btn btn-secondary" disabled>
+            <i class="bi bi-lock"></i> Updates Disabled (Ticket Closed)
+        </button>
+    {% endif %}
+</div>
+
+
+
+{% if ticket.ticket_open and request.user == ticket.ticket_created_by %}
+    <form action="{% url 'close_ticket' ticket.id %}" method="post" class="d-inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to resolve this ticket?')">
+            <i class="bi bi-check-circle"></i> Close & Resolve Ticket
+        </button>
+    </form>
 {% endif %}
-
-<a href="/client/update_ticket/{{ticket.id}}" class="btn btn-info" role="button">Add Ticket Update</a> 
-
-{% if ticket.ticket_open %}
-<a href="/client/close_ticket/{{ticket.id}}" class="btn btn-danger" role="button">Close Ticket</a> 
-{% else %}
-<a href="#" class="btn btn-danger disabled" tabindex="-1" aria-disabled="true" role="button">Close Ticket</a> 
-{% endif %} 
 
 {% endblock %}
 

@@ -33,39 +33,57 @@
 </form>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Get references to the elements
-    const followUpPeriodSelect = document.getElementById('id_action_follow_up_period');
-    const actionOutcomeRadios = document.querySelectorAll('input[name="action_outcome"]');
-    const followUpPeriodLabel = document.querySelector('label[for="id_action_follow_up_period"]');
+// 1. Move this OUTSIDE so the HTML 'onchange' can find it
+// Keep this global so the 'onchange' can still find it
+function updateFollowUpDate() {
+    const periodSelect = document.getElementById('id_action_follow_up_period');
+    const dateInput = document.getElementById('id_action_follow_up_date');
+    
+    // Find the Bootstrap wrapper div for the date field
+    const dateWrapper = dateInput.closest('.mb-3') || dateInput.parentElement;
 
-    // Function to toggle the visibility of the follow-up period
-    function toggleFollowUpPeriodVisibility() {
-        let requiresFollowUpSelected = false;
-        // Check if any of the 'action_outcome' radio buttons are checked
+    if (periodSelect.value === "Other") {
+        dateWrapper.style.display = 'block';
+    } else {
+        dateWrapper.style.display = 'none';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const actionOutcomeRadios = document.querySelectorAll('input[name="action_outcome"]');
+    const periodSelect = document.getElementById('id_action_follow_up_period');
+    
+    // Find the Bootstrap wrapper div for the period dropdown
+    const periodWrapper = periodSelect.closest('.mb-3') || periodSelect.parentElement;
+
+    function togglePeriodDropdown() {
+        let requiresFollowUp = false;
         actionOutcomeRadios.forEach(radio => {
             if (radio.checked && radio.value === "Requires Follow-Up") {
-                requiresFollowUpSelected = true;
+                requiresFollowUp = true;
             }
         });
 
-        // Show or hide the follow-up period select element
-        if (requiresFollowUpSelected) {
-            followUpPeriodSelect.style.display = 'block'; // Or 'flex', 'inline-block' as appropriate for your CSS
-            followUpPeriodLabel.style.display = 'block';
+        if (requiresFollowUp) {
+            periodWrapper.style.display = 'block';
         } else {
-            followUpPeriodSelect.style.display = 'none';
-            followUpPeriodLabel.style.display = 'none';
+            periodWrapper.style.display = 'none';
+            // Hide date too if the dropdown is hidden
+            const dateInput = document.getElementById('id_action_follow_up_date');
+            const dateWrapper = dateInput.closest('.mb-3') || dateInput.parentElement;
+            dateWrapper.style.display = 'none';
         }
+        
+        // Always run the "Other" check when toggling the main dropdown
+        updateFollowUpDate();
     }
 
-    // Add event listeners to all radio buttons with the name 'action_outcome'
     actionOutcomeRadios.forEach(radio => {
-        radio.addEventListener('change', toggleFollowUpPeriodVisibility);
+        radio.addEventListener('change', togglePeriodDropdown);
     });
 
-    // Initial check on page load
-    toggleFollowUpPeriodVisibility();
+    // Initial run
+    togglePeriodDropdown();
 });
 </script>
 

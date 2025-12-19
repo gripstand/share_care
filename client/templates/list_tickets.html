@@ -13,14 +13,29 @@ Listing All Tickets
         });
 </script>
 
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ list_title|default:"Tickets" }}</h2>
+    
+    <div class="btn-group" role="group" aria-label="Ticket Filter">
+        <a href="{% url 'list_tickets' %}" 
+           class="btn btn-outline-primary {% if request.resolver_match.url_name == 'list_tickets' %}active{% endif %}">
+            All Tickets
+        </a>
+        <a href="{% url 'my_tickets_list' %}" 
+           class="btn btn-outline-primary {% if request.resolver_match.url_name == 'my_tickets_list' %}active{% endif %}">
+            My Tickets
+        </a>
+    </div>
+</div>
+
 <table id="myTable" class="display">  
     <thead>
     <tr>
         <th>Slug</th>
         <th>Created</th>
         <th>Status</th>
-        <th>related to</th>
-        <th colspan="2">Action</th>
+        <th>Related to Action</th>
+        <th>Action</th>
     </tr>
     </thead>
 {% for ticket in tickets %}
@@ -28,9 +43,21 @@ Listing All Tickets
     <td>{{ticket.ticket_slug}}</td>
     <td>{{ticket.ticket_create_date}}</td>
     <td>{{ticket.ticket_status}}</td>
-    <td>{{ticket.action}}</td>
-    <td><a href='/client/ticket_detail/{{ticket.id}}'>View</a></td>
-    <td><a href='/client/update_ticket/{{ticket.id}}'>Edit</a></td>    
+     <td><a href="/client/action_detail/{{ticket.action.id}}">{{ticket.action}}</a></td>
+    <td>
+    <div class="d-flex align-items-center">
+    <a href="{% url 'ticket_detail' ticket.id %}" class="btn btn-sm btn-primary me-2">
+        View
+    </a>
+    
+    {% if ticket.ticket_open %}
+        <a href="{% url 'update_ticket' ticket.id %}" class="btn btn-sm btn-outline-success">
+            + Update
+        </a>
+    {% else %}
+        <span class="badge bg-secondary text-white">Closed</span>
+    {% endif %}
+</div></td>
 </tr>
 {% endfor %}
 </table>

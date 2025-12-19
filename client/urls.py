@@ -1,7 +1,7 @@
 from django.urls import path, include
 from . import views
 from django.contrib import admin
-from .views import  ListClients, ClientDetails, UpdateView, ListActions, CreateClient,ClientUpdateView,UpdateGoalView #
+from .views import  ListClients, ClientDetails, UpdateView, ListActions, CreateClient,ClientUpdateView,UpdateGoalView,MyAssignedTicketsListView, CloseTicketView #
 
 urlpatterns=[
 
@@ -21,7 +21,9 @@ urlpatterns=[
     path('add_ticket/<int:action_id>', views.CreateTicket.as_view(), name='add_ticket'),
     path('update_ticket/<int:ticket_id>/', views.AddTicketUpdate.as_view(), name='update_ticket'),
     path('list_tickets/', views.ListTickets.as_view(), name='list_tickets'),
+    path('tickets/mine/', MyAssignedTicketsListView.as_view(), name='my_tickets_list'),
     path('ticket_detail/<int:pk>/', views.TicketDetails.as_view(), name='ticket_detail'),
+    path('tickets/<int:pk>/close/', CloseTicketView.as_view(), name='close_ticket'),
     path('add_eval/<int:client_id>/', views.CreateEval.as_view(), name='add_eval'),
     path('update_eval/<int:pk>/', views.UpdateEval.as_view(), name='update_eval'),
     path('eval_detail/<int:pk>/', views.EvalDetails.as_view(), name='eval_detail'),

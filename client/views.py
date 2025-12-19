@@ -1,13 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import OuterRef, Subquery
 from .models import Client, AddContacts, Goal, GoalUpdate, Actions, Eval, Ticket, TicketUpdate
 from equipment.models import Equipment, EquipmentStatus
 from .forms import ClientForm, GoalForm, GoalUpdateForm, PhoneNumberFormSet, PhoneNumberFormSetUpdate, ActionForm, EvalForm, TicketForm, TicketUpdateFormSet, TicketUpdateForm
 from django.forms import inlineformset_factory
 from django.views.generic import CreateView,DetailView, ListView, UpdateView, DeleteView
+from django.views import View
 from django.urls import reverse_lazy
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
@@ -15,6 +17,8 @@ from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
 from .models import Client
 from .forms import ClientForm, PhoneNumberFormSet
+from django.utils import timezone
+from django.shortcuts import get_object_or_404, redirect
 
 # Create your views here.
 def index(request):
@@ -495,8 +499,18 @@ class AddTicketUpdate(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('list_clients')
 
     def dispatch(self, request, *args, **kwargs):
-        # Fetch the ticket object from the database once
+        # Fetch the ticket
         self.ticket_instance = get_object_or_404(Ticket, pk=kwargs.get('ticket_id'))
+        
+        # Check if closed
+        if not self.ticket_instance.ticket_open:
+            # Check if the message already exists in this request to prevent duplicates
+            storage = messages.get_messages(request)
+            if not any(m.message == "You cannot add updates to a closed ticket." for m in storage):
+                messages.warning(request, "You cannot add updates to a closed ticket.")
+            
+            # We MUST return the redirect here to stop the view from processing further
+            return redirect('ticket_detail', pk=self.ticket_instance.pk)
         return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self):
@@ -519,16 +533,60 @@ class AddTicketUpdate(LoginRequiredMixin, CreateView):
         else:
             context['previous_url'] = fallback_url
         return context
+    
 
 class TicketDetails(LoginRequiredMixin, DetailView):
     model=Ticket
     context_object_name='ticket'
     template_name='ticket_details.html'
 
+    def get_context_data(self, **kwargs):
+        # 1. Get the standard context (the ticket itself)
+        context = super().get_context_data(**kwargs)
+        
+        # 2. Add the updates, ordered by date (newest at the top)
+        # We use the related_name 'updates_for_ticket' from your model
+        context['updates'] = self.object.updates_for_ticket.all().order_by('-ticket_update_date', '-id')
+        
+        return context
+
 class ListTickets(LoginRequiredMixin, ListView):
     model=Ticket
     context_object_name='tickets'
     template_name='list_tickets.html'
+
+
+class MyAssignedTicketsListView(LoginRequiredMixin, ListView):
+    model = Ticket
+    template_name = 'list_tickets.html'  # You can reuse your existing list template
+    context_object_name = 'tickets'
+
+    def get_queryset(self):
+        # This is the "magic" line that filters for the logged-in user
+        return Ticket.objects.filter(
+            now_assigned_to=self.request.user, 
+            ticket_open=True
+        ).order_by('-ticket_create_date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['list_title'] = "My Open Tickets"
+        return context
+
+
+class CloseTicketView(LoginRequiredMixin, UserPassesTestMixin, View):
+    def post(self, request, pk):
+        ticket = get_object_or_404(Ticket, pk=pk)
+        ticket.ticket_open = False
+        ticket.ticket_resolved_date = timezone.now()
+        ticket.ticket_status = 'RESOLVED'  # Assuming this matches your TicketStatusTypes
+        ticket.save()
+        return redirect('ticket_detail', pk=pk)
+
+    def test_func(self):
+        # SECURITY: Only the person who created the ticket can close it
+        ticket = get_object_or_404(Ticket, pk=self.kwargs['pk'])
+        return self.request.user == ticket.ticket_created_by
 
 #---------------------- Evaluations --------------------------#
 

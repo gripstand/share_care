@@ -185,24 +185,24 @@ class Equipment_with_client(models.Model):
 
 
 class Actions(models.Model):
-    action_date=models.DateField(default=timezone.now)
+    action_date=models.DateField(default=timezone.now, verbose_name="Date of Action")
     action_user = models.ForeignKey(
         settings.AUTH_USER_MODEL,  # Use settings.AUTH_USER_MODEL for consistency
         on_delete=models.CASCADE,
-        related_name='actions_by_user' # Give it a unique related_name
+        related_name='actions_by_user', verbose_name="User who performed the action"
     )
-    action_type=models.CharField(max_length=30,choices=ActionTypes.choices, default='Phone Call')
-    action_init_by=models.CharField(max_length=30,choices=ActionInitByTypes.choices, default='Client')
-    action_outcome=models.CharField(max_length=30,choices=ActionOutcomeList.choices, default='Successful')
+    action_type=models.CharField(max_length=30,choices=ActionTypes.choices, default='Phone Call', verbose_name="Type of Action")
+    action_init_by=models.CharField(max_length=30,choices=ActionInitByTypes.choices, default='Client', verbose_name="Action Initiated By")
+    action_outcome=models.CharField(max_length=30,choices=ActionOutcomeList.choices, default='Successful', verbose_name="What was the outcome?")
     action_follow_up_period=models.CharField(max_length=30,choices=ActionFollowUpPeriod.choices, blank=True, null=True)
-    action_follow_up_date=models.DateField(null=True, blank=True, verbose_name="Follow Up Date")
+    action_follow_up_date=models.DateField(null=True, blank=True, verbose_name="Custom Date")
     action_reason_code=models.ForeignKey(ReasonTopicsList, on_delete=models.CASCADE, related_name='reason_for_action')
     action_notes=models.TextField(null=True, blank=True)
     client=models.ForeignKey(Client, on_delete=models.CASCADE, related_name='actions_for_client')
     action_ticket_created=models.BooleanField(default=False)
 
     def __str__(self):
-        return self.action_date.strftime('%m-%d-%Y') + ' ' + self.action_type
+        return  self.action_type + ' ' + self.action_date.strftime('%m/%d/%Y')
 
 class Ticket(models.Model):
     ticket_slug=models.CharField(max_length=30, verbose_name="Ticket Short Name")
@@ -218,9 +218,19 @@ class Ticket(models.Model):
     ticket_resolved_date=models.DateField(null=True, blank=True, verbose_name="Resolved Date")
     ticket_open=models.BooleanField(default=True)
     action=models.ForeignKey(Actions, on_delete=models.CASCADE, related_name='ticket_for_action')
+    now_assigned_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='currently_assigned_tickets'
+    )
 
     def __str__(self):
         return self.ticket_slug
+    
+    
+
     
 class TicketUpdate(models.Model):
     ticket=models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name='updates_for_ticket')
@@ -242,4 +252,13 @@ class TicketUpdate(models.Model):
     def __str__(self):
         return f"Update on {self.ticket_update_date} by {self.ticket_update_by}"
     
- 
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+
+        # Ensure we use the correct related_name 'updates_for_ticket' from your view
+        latest_update = self.ticket.updates_for_ticket.order_by('-ticket_update_date', '-id').first()
+
+        if is_new or (latest_update and self.id == latest_update.id):
+            self.ticket.now_assigned_to = self.ticket_assign_to
+            self.ticket.save(update_fields=['now_assigned_to'])

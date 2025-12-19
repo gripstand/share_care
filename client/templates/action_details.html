@@ -6,7 +6,7 @@ Record the followng Action performed on behalf of: {{action.client}}
 {% endblock %}
 
 {% block content %}
-
+<h3>Action Details for {{ action.client }}</h3>
 <strong>Action Date:</strong> {{ action.action_date }}<br>
 <strong>Action Type:</strong> {{ action.action_type }}<br>
 <strong>Action Outcome: </strong>{{ action.action_outcome }}<br>
@@ -18,7 +18,7 @@ Record the followng Action performed on behalf of: {{action.client}}
 <strong>Client: </strong>{{ action.client }}<br>
 
 {% if action_tickets %}
-    <h3>Tickets associated with this Action</h3>
+    <h4>Ticket associated with this Action</h4>
     <ul>
         {% for ticket in action_tickets %}
             <li>

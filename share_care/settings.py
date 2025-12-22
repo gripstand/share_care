@@ -180,23 +180,23 @@ TWO_FACTOR_STRIC = True
 
 # settings.py
 SITE_NAME = "SHARE Care System"
-DOMAIN_NAME = "127.0.0.1:8000"  # Use your production domain for production
-#DOMAIN_NAME = "sharecaredb.org"  # Use your production domain for production
+#DOMAIN_NAME = "127.0.0.1:8000"  # Use your production domain for production
+DOMAIN_NAME = "sharecaredb.org"  # Use your production domain for production
 
 # Email settings
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'gripstand@gmail.com'
 
 # FOR PRODUCTION USE THE FOLLOWING EMAIL SETTINGS INSTEAD OF THE ABOVE
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'gripstand@gmail.com'
-# EMAIL_HOST_PASSWORD = 'bwtxgrwwrjgsquid' # No spaces!
-# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'gripstand@gmail.com'
+EMAIL_HOST_PASSWORD = 'bwtxgrwwrjgsquid' # No spaces!
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
 # Settings for django-bootstrap-v5
